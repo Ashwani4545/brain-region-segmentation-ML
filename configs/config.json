@@ -1,0 +1,19 @@
+{
+    "train": {
+        "batch_size": 6,
+        "epochs": 80,
+        "lr": 0.0001,
+        "patch_size": [
+            128,
+            128
+        ],
+        "num_slices": 5
+    },
+    "paths": {
+        "data_nifti": "data/nifti",
+        "train_list": "data/splits/train.csv",
+        "val_list": "data/splits/val.csv",
+        "checkpoints": "checkpoints",
+        "classifier_checkpoints": "checkpoints_classifier"
+    }
+}
