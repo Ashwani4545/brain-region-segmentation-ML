@@ -41,7 +41,7 @@ NCCT_Segmentation_Final/
 
 ---
 
-# 🚀 Running on Google Colab
+## 🚀 Running on Google Colab
 
 1. Upload the project ZIP to your Google Drive
 2. Mount your Drive:
