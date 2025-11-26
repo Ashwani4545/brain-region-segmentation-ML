@@ -5,12 +5,12 @@ This project automatically detects, segments, and classifies hypodense regions f
 It uses deep learning models (2.5D U-Net + CNN classifier) to identify abnormalities such as ischemic strokes or lesions and generates a summary report describing the findings.
 
 ### Project Objectives
-
+```
 • Segment hypodense regions (stroke, edema, etc.) using a 2.5D U-Net model
 • Classify NCCT scans as Normal or Abnormal using a CNN classifier
 • Generate a descriptive report summarizing lesion characteristics and side
 • Provide a Google Colab notebook for easy and automated execution
-
+```
 ---
 
 # 📁 Project Structure
