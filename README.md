@@ -31,7 +31,7 @@ NCCT_Segmentation_Final/
 ```
 ---
 
-# ⚙️ Workflow Overview
+## ⚙️ Workflow Overview
 
 1. Preprocessing — DICOM/NIfTI conversion, normalization, skull stripping
 2. Segmentation — 2.5D U-Net detects hypodense regions (e.g., stroke zones)
