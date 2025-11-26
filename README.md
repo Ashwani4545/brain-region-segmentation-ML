@@ -13,7 +13,7 @@ It uses deep learning models (2.5D U-Net + CNN classifier) to identify abnormali
 ```
 ---
 
-# 📁 Project Structure
+## 📁 Project Structure
 ```
 NCCT_Segmentation_Final/
 │
