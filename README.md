@@ -110,13 +110,13 @@ This final starter project extends the NCCT segmentation starter pack with:
 ---
 
 ## 👨‍💻 Author
-
+```
 Ashwani Pandey
 Project: Brain NCCT Hypodense Region Segmentation and Classification
 Model: 2.5D U-Net + CNN | Dataset: CQ500
 Year: 2025
 Use: Academic & Research Purposes Only
-
+```
 ---
 
 # 🏁 Summary
