@@ -89,7 +89,7 @@ This final starter project extends the NCCT segmentation starter pack with:
 ---
 
 ## Quick run (Colab / local)
-
+```
 1. Place DICOM / NIfTI files under `data/raw/` and corresponding masks (if available) under `data/masks/`.
 2. Update `data/splits/train.csv` and `data/splits/val.csv` with two columns: `image,mask`.
 3. Install requirements: `pip install -r requirements.txt`
@@ -98,7 +98,7 @@ This final starter project extends the NCCT segmentation starter pack with:
 6. Train classifier (optional): `python train_classifier.py --config configs/config.json`
 7. Inference & report: `python inference.py --model checkpoints/best.pth --input data/nifti --output_dir results`
    Then `python report_generator.py --mask results/patient.mask.nii.gz --image data/nifti/patient.nii.gz --out results/patient_report.txt`
-
+```
 ---
 
 ## What's new in this final version
