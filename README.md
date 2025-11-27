@@ -66,11 +66,11 @@ NCCT_Segmentation_Final/
 ---
 
 # 🧩 Tech Stack
-
+```
 • Language: Python 3.12
 • Frameworks: PyTorch, torchvision
 • Libraries: nibabel, SimpleITK, pydicom, pynrrd, albumentations, scikit-image, matplotlib, numpy, scipy
-
+```
 ---
 
 # NCCT Hypodense Segmentation + Classification — Final Starter Project (2.5D)
