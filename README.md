@@ -42,7 +42,7 @@ NCCT_Segmentation_Final/
 ---
 
 ## 🚀 Running on Google Colab
-
+```
 1. Upload the project ZIP to your Google Drive
 2. Mount your Drive:
 3. from google.colab import drive
@@ -53,7 +53,7 @@ NCCT_Segmentation_Final/
 8. !pip install -r requirements.txt
 9. Open and run the notebook:
 10. notebooks/colab_run.ipynb
-
+```
 ---
 
 ## 💡 Outputs
