@@ -102,11 +102,11 @@ This final starter project extends the NCCT segmentation starter pack with:
 ---
 
 ## What's new in this final version
-
+```
 - `classifier.py` and `train_classifier.py` (simple encoder-based classifier)
 - `report_generator.py` that creates a short radiology-style textual report (template-based)
 - Updated `requirements.txt` (uses `pynrrd` instead of `nrrd`)
-
+```
 ---
 
 ## 👨‍💻 Author
