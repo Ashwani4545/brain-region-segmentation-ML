@@ -109,7 +109,7 @@ This final starter project extends the NCCT segmentation starter pack with:
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 Ashwani Pandey
 Project: Brain NCCT Hypodense Region Segmentation and Classification
