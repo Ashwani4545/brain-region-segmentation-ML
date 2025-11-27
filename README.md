@@ -83,9 +83,9 @@ This final starter project extends the NCCT segmentation starter pack with:
 - preprocessing, training, inference, visualization scripts and a Colab-ready notebook
 
 ---
-
+```
 **Important:** This repository does NOT contain medical images. Use public datasets (e.g., CQ500) or institutional NCCTs.
-
+```
 ---
 
 ## Quick run (Colab / local)
