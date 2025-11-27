@@ -72,17 +72,6 @@ NCCT_Segmentation_Final/
 • Libraries: nibabel, SimpleITK, pydicom, pynrrd, albumentations, scikit-image, matplotlib, numpy, scipy
 ```
 ---
-
-# NCCT Hypodense Segmentation + Classification — Final Starter Project (2.5D)
-
-This final starter project extends the NCCT segmentation starter pack with:
-
-- **2.5D U-Net** segmentation pipeline (PyTorch)
-- **2.5D classifier** (simple encoder-based classifier) for Normal vs Abnormal
-- **Report generator**: rule-based textual report from segmentation masks + classification
-- preprocessing, training, inference, visualization scripts and a Colab-ready notebook
-
----
 ```
 **Important:** This repository does NOT contain medical images. Use public datasets (e.g., CQ500) or institutional NCCTs.
 ```
