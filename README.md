@@ -56,7 +56,7 @@ NCCT_Segmentation_Final/
 
 ---
 
-# 💡 Outputs
+## 💡 Outputs
 
 • 🧩 Segmentation Mask: Highlights lesion regions
 • 🧠 Classification Result: Normal / Abnormal
