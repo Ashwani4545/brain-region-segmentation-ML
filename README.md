@@ -51,7 +51,6 @@ NCCT_Segmentation_Final/
 9. Open and run the notebook:
 10. notebooks/colab_run.ipynb
 ```
----
 
 ## 💡 Outputs
 ```
@@ -60,7 +59,6 @@ NCCT_Segmentation_Final/
 • 📄 Report: Text summary (lesion volume, type, side)
 • 🎨 Visualization: Overlayed images for interpretation
 ```
----
 
 # 🧩 Tech Stack
 ```
