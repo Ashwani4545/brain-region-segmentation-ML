@@ -98,7 +98,6 @@ Model: 2.5D U-Net + CNN | Dataset: CQ500
 Year: 2025
 Use: Academic & Research Purposes Only
 ```
----
 
 ## 🏁 Summary
 
