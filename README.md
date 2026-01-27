@@ -66,11 +66,10 @@ NCCT_Segmentation_Final/
 • Frameworks: PyTorch, torchvision
 • Libraries: nibabel, SimpleITK, pydicom, pynrrd, albumentations, scikit-image, matplotlib, numpy, scipy
 ```
----
+
 ```
 **Important:** This repository does NOT contain medical images. Use public datasets (e.g., CQ500) or institutional NCCTs.
 ```
----
 
 ## Quick run (Colab / local)
 ```
