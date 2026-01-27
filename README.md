@@ -37,7 +37,6 @@ NCCT_Segmentation_Final/
 4. Report Generation — Produces a readable summary of findings
 5. Visualization — Displays overlay of segmented lesions for interpretation
 ```
----
 
 ## 🚀 Running on Google Colab
 ```
