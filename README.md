@@ -1,5 +1,5 @@
 # 🧠 Brain NCCT Hypodense Region Segmentation & Classification Project
----
+
 ## Project Overview
 This project automatically detects, segments, and classifies hypodense regions from Brain Non-Contrast Computed Tomography (NCCT) scans.
 It uses deep learning models (2.5D U-Net + CNN classifier) to identify abnormalities such as ischemic strokes or lesions and generates a summary report describing the findings.
@@ -11,7 +11,6 @@ It uses deep learning models (2.5D U-Net + CNN classifier) to identify abnormali
 • Generate a descriptive report summarizing lesion characteristics and side
 • Provide a Google Colab notebook for easy and automated execution
 ```
----
 
 ## 📁 Project Structure
 ```
@@ -29,7 +28,6 @@ NCCT_Segmentation_Final/
 ├── requirements.txt # Python dependencies
 └── README.md # Documentation
 ```
----
 
 ## ⚙️ Workflow Overview
 ```
