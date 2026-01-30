@@ -30,13 +30,13 @@ NCCT_Segmentation_Final/
 ```
 
 ## ⚙️ Workflow Overview
-```
+
 1. Preprocessing — DICOM/NIfTI conversion, normalization, skull stripping
 2. Segmentation — 2.5D U-Net detects hypodense regions (e.g., stroke zones)
 3. Classification — CNN predicts whether the scan is Normal or Abnormal
 4. Report Generation — Produces a readable summary of findings
 5. Visualization — Displays overlay of segmented lesions for interpretation
-```
+
 
 ## 🚀 Running on Google Colab
 ```
