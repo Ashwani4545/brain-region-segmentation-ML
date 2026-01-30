@@ -81,7 +81,7 @@ NCCT_Segmentation_Final/
 6. Train classifier (optional): `python train_classifier.py --config configs/config.json`
 7. Inference & report: `python inference.py --model checkpoints/best.pth --input data/nifti --output_dir results`
    Then `python report_generator.py --mask results/patient.mask.nii.gz --image data/nifti/patient.nii.gz --out results/patient_report.txt`
-```
+
 
 ## What's new in this final version
 ```
