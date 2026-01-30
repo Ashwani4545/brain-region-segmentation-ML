@@ -58,7 +58,7 @@ NCCT_Segmentation_Final/
 • 🧠 Classification Result: Normal / Abnormal
 • 📄 Report: Text summary (lesion volume, type, side)
 • 🎨 Visualization: Overlayed images for interpretation
-```
+
 
 # 🧩 Tech Stack
 ```
