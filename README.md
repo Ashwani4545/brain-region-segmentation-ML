@@ -72,7 +72,7 @@ NCCT_Segmentation_Final/
 ```
 
 ## Quick run (Colab / local)
-```
+
 1. Place DICOM / NIfTI files under `data/raw/` and corresponding masks (if available) under `data/masks/`.
 2. Update `data/splits/train.csv` and `data/splits/val.csv` with two columns: `image,mask`.
 3. Install requirements: `pip install -r requirements.txt`
