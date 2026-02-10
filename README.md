@@ -54,7 +54,7 @@ NCCT_Segmentation_Final/
 
 ## 💡 Outputs
 
-• 🧩 Segmentation Mask: Highlights lesion regions
+•  🧩 Segmentation Mask: Highlights lesion regions
 • 🧠 Classification Result: Normal / Abnormal
 • 📄 Report: Text summary (lesion volume, type, side)
 • 🎨 Visualization: Overlayed images for interpretation
