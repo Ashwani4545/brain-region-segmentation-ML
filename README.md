@@ -104,3 +104,8 @@ Use: Academic & Research Purposes Only
 ## 🏁 Summary
 
 This project demonstrates how AI-powered medical imaging can assist radiologists in early detection of ischemic strokes and lesions from NCCT scans — a step toward faster and more accurate computer-aided diagnosis.
+
+
+
+
+**A proper website to be designed for this**
