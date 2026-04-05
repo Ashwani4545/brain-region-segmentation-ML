@@ -19,12 +19,15 @@ NCCT_Segmentation_Final/
 ├── data/ # NCCT image files and CSV splits (Include the image dataset of tumour,mri,ct-scan)
 ├── models/ # Saved trained models (segmentation + classification)
 ├── notebooks/ # Google Colab notebook for end-to-end workflow
-├── src/ # Source code for training, inference, reporting
-│ ├── train_segmentation.py
-│ ├── train_classifier.py
-│ ├── inference.py
-│ ├── report_generator.py
-│ └── utils.py
+├── classifier.py
+├── dataset.py
+├── index.html
+├── inference.py
+├── train.py
+├── train_classifier.py
+├── visualize.py
+├── preprocessor.py
+├── report_generator.py
 ├── requirements.txt # Python dependencies
 └── README.md # Documentation
 ```
