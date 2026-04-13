@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner | NeuroDetect AI</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'segmentation/css/styles.css' %}">
+</head>
+<body class="dark-theme app-body">
+    
+    <div class="background-effects">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2" style="right: auto; left: -10vw; top: 50vh;"></div>
+    </div>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <a href="{% url 'landing' %}"><span class="gradient-text">NeuroDetect AI</span></a>
+        </div>
+    </nav>
+
+    <main class="app-container">
+        <div class="glass-panel main-panel">
+            <h2 class="panel-title">Upload NCCT Scan</h2>
+            
+            <div id="uploadArea" class="upload-area">
+                <div class="upload-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p>Drag and drop image here or <strong>Click to browse</strong></p>
+                    <p class="text-sm">Supported formats: JPG, PNG, DICOM</p>
+                </div>
+                <input type="file" id="fileInput" accept="image/png, image/jpeg, .dcm" style="display: none;">
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden">
+                <div class="spinner"></div>
+                <p>Analyzing brain regions...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsArea" class="hidden fade-in">
+                <div class="results-header">
+                    <h3>Analysis Complete</h3>
+                    <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
+                </div>
+
+                <div class="image-grid">
+                    <div class="image-box glass-panel-inner">
+                        <h4>Original Scan</h4>
+                        <img id="origImage" src="" alt="Original Scan" class="result-img">
+                    </div>
+                    <div class="image-box glass-panel-inner">
+                        <h4>Segmented Mask</h4>
+                        <img id="maskImage" src="" alt="Mask" class="result-img">
+                    </div>
+                    <div class="image-box glass-panel-inner highlight-box">
+                        <h4>AI Overlay <span class="badge">Recommended</span></h4>
+                        <img id="overlayImage" src="" alt="Overlay" class="result-img">
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn-primary-outline" id="resetBtn">Analyze Another Scan</button>
+                    <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary">Download Overlay</a>
+                </div>
+                
+                <div class="explainable-ai doc-panel glass-panel-inner">
+                    <h4><img src="https://img.icons8.com/ios-filled/50/ffffff/info.png" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Explainable AI Summary</h4>
+                    <p id="explainText">The system detected hypodense regions matching typical stroke signatures. Red highlights on the overlay indicate the precise location of the anomaly.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const predictApiUrl = "{% url 'predict_api' %}";
+    </script>
+    <script src="{% static 'segmentation/js/app.js' %}"></script>
+</body>
+</html>
