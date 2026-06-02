@@ -11,6 +11,8 @@
 
 **An AI-powered web application for detecting and segmenting hypodense regions (e.g., stroke-affected areas) from Brain Non-Contrast CT (NCCT) scans.**
 
+🚀 **Live Demo:** [Hugging Face Spaces](https://huggingface.co/spaces/Ashwani4545/neurodetect-ai)
+
 </div>
 
 ---
