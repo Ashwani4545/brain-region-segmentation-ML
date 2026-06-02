@@ -47,7 +47,8 @@ _middleware += [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Note: Disabled XFrameOptionsMiddleware to allow framing by Hugging Face Spaces
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 MIDDLEWARE = _middleware
