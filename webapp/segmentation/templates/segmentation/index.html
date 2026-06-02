@@ -1,59 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroDetect AI | Brain CT Segmentation</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'segmentation/css/styles.css' %}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-</head>
-<body class="dark-theme">
-    
-    <div class="background-effects">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
+{% extends 'segmentation/base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">AI-Based Brain CT <br><span class="gradient-text">Hypodense Region</span> Detection</h1>
+        <p class="hero-subtitle">
+            Harness the power of advanced deep learning to accurately detect and segment stroke-affected areas and hypodense regions from Brain NCCT scans in seconds.
+        </p>
+        <div class="hero-actions">
+            <a href="{% url 'dashboard' %}" class="btn-primary launch-btn">Launch Diagnostics Hub
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card glass-panel">
+                <h3>Fast Inference</h3>
+                <p>Powered by 2.5D U-Net architecture to deliver real-time region detection.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>Multiple Formats</h3>
+                <p>Upload standard PNG, JPG, or raw Medical DICOM format images flawlessly.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>Explainable AI</h3>
+                <p>Intuitive color-coded overlay masks with transparent confidence scoring.</p>
+            </div>
+        </div>
     </div>
-
-    <nav class="navbar glass-panel">
-        <div class="logo">
-            <span class="gradient-text">NeuroDetect AI</span>
-        </div>
-        <ul class="nav-links">
-            <li><a href="{% url 'landing' %}">Home</a></li>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'app' %}" class="btn-primary-outline">Acquisition Scanner</a></li>
-        </ul>
-    </nav>
-
-    <main class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">AI-Based Brain CT <br><span class="gradient-text">Hypodense Region</span> Detection</h1>
-            <p class="hero-subtitle">
-                Harness the power of advanced deep learning to accurately detect and segment stroke-affected areas and hypodense regions from Brain NCCT scans in seconds.
-            </p>
-            <div class="hero-actions">
-                <a href="{% url 'dashboard' %}" class="btn-primary launch-btn">Launch Diagnostics Hub
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </a>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card glass-panel">
-                    <h3>Fast Inference</h3>
-                    <p>Powered by 2.5D U-Net architecture to deliver real-time region detection.</p>
-                </div>
-                <div class="feature-card glass-panel">
-                    <h3>Multiple Formats</h3>
-                    <p>Upload standard PNG, JPG, or raw Medical DICOM format images flawlessly.</p>
-                </div>
-                <div class="feature-card glass-panel">
-                    <h3>Explainable AI</h3>
-                    <p>Intuitive color-coded overlay masks with transparent confidence scoring.</p>
-                </div>
-            </div>
-        </div>
-    </main>
-</body>
-</html>
+</main>
+{% endblock %}

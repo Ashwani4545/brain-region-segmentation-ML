@@ -19,6 +19,15 @@ def landing_page(request):
 def app_page(request):
     return render(request, 'segmentation/app.html')
 
+def about_page(request):
+    return render(request, 'segmentation/about.html')
+
+def contact_page(request):
+    return render(request, 'segmentation/contact.html')
+
+def terms_page(request):
+    return render(request, 'segmentation/terms.html')
+
 def dashboard_page(request):
     scans = PatientScan.objects.all()
     total_scans = scans.count()

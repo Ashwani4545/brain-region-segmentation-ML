@@ -1,0 +1,24 @@
+{% extends 'segmentation/base.html' %}
+{% load static %}
+
+{% block title %}About | NeuroDetect AI{% endblock %}
+
+{% block content %}
+<main class="content-section">
+    <div class="glass-panel text-content" style="max-width: 800px; margin: 4rem auto; padding: 3rem;">
+        <h2>About NeuroDetect AI</h2>
+        <p>NeuroDetect AI is a state-of-the-art web application designed to automatically detect, segment, and highlight hypodense regions (such as those caused by ischemic stroke, oedema, or infarction) in Brain Non-Contrast Computed Tomography (NCCT) scans.</p>
+        
+        <h3>Our Technology</h3>
+        <p>At the core of NeuroDetect AI is a dual-mode physics-based and deep-learning pipeline:</p>
+        <ul>
+            <li><strong>2.5D U-Net Architecture:</strong> Utilizes multi-slice contextual information for robust 3D-like segmentation while remaining computationally efficient.</li>
+            <li><strong>Hounsfield Unit Thresholding:</strong> For raw DICOM files, we apply exact physics-based clinical windows (WL=35, WW=100) for pinpoint accuracy.</li>
+            <li><strong>Adaptive Intensity Modeling:</strong> For standard JPG/PNG formats lacking metadata, we use statistical outlier detection to reliably highlight hypodense anomalies.</li>
+        </ul>
+
+        <h3>Purpose & Disclaimer</h3>
+        <p>This application was developed by Ashwani Pandey as an academic and research project. <strong>It is not a certified medical device</strong> and should never be used to make clinical or diagnostic decisions without the review of a qualified medical professional.</p>
+    </div>
+</main>
+{% endblock %}

@@ -1,98 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner | NeuroDetect AI</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'segmentation/css/styles.css' %}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-</head>
-<body class="dark-theme app-body">
-    
-    <div class="background-effects">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2" style="right: auto; left: -10vw; top: 50vh;"></div>
-    </div>
+{% extends 'segmentation/base.html' %}
+{% load static %}
 
-    <!-- PACS Medical Suite Navbar -->
-    <nav class="navbar glass-panel">
-        <div class="logo">
-            <span class="gradient-text">NeuroDetect AI</span>
-            <span class="badge" style="margin-left: 10px; position: static; background: rgba(59, 130, 246, 0.2); color: var(--accent-primary); border: 1px solid rgba(59, 130, 246, 0.3);">Clinical Suite</span>
+{% block title %}Scanner | NeuroDetect AI{% endblock %}
+{% block body_class %}dark-theme app-body{% endblock %}
+
+{% block content %}
+<main class="app-container">
+    <div class="glass-panel main-panel">
+        <h2 class="panel-title">Upload NCCT Scan</h2>
+        
+        <div id="uploadArea" class="upload-area">
+            <div class="upload-content">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag and drop image here or <strong>Click to browse</strong></p>
+                <p class="text-sm">Supported formats: JPG, PNG, DICOM</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/png, image/jpeg, .dcm" style="display: none;">
         </div>
-        <ul class="nav-links">
-            <li><a href="/dashboard/">Dashboard</a></li>
-            <li><a href="/registry/">Registry</a></li>
-            <li><a href="/app/" class="nav-active">Scanner</a></li>
-            <li><a href="/settings/">Calibration</a></li>
-            <li><a href="/" class="btn-primary-outline" style="padding: 0.4rem 1rem;">Log Out</a></li>
-        </ul>
-    </nav>
 
-    <main class="app-container">
-        <div class="glass-panel main-panel">
-            <h2 class="panel-title">Upload NCCT Scan</h2>
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden">
+            <div class="spinner"></div>
+            <p>Analyzing brain regions...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsArea" class="hidden fade-in">
+            <div class="results-header">
+                <h3>Analysis Complete</h3>
+                <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
+            </div>
+
+            <div class="image-grid">
+                <div class="image-box glass-panel-inner">
+                    <h4>Original Scan</h4>
+                    <img id="origImage" src="" alt="Original Scan" class="result-img">
+                </div>
+                <div class="image-box glass-panel-inner">
+                    <h4>Segmented Mask</h4>
+                    <img id="maskImage" src="" alt="Mask" class="result-img">
+                </div>
+                <div class="image-box glass-panel-inner highlight-box">
+                    <h4>AI Overlay <span class="badge">Recommended</span></h4>
+                    <img id="overlayImage" src="" alt="Overlay" class="result-img">
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-primary-outline" id="resetBtn">Analyze Another Scan</button>
+                <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary">Download Overlay</a>
+            </div>
             
-            <div id="uploadArea" class="upload-area">
-                <div class="upload-content">
-                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <p>Drag and drop image here or <strong>Click to browse</strong></p>
-                    <p class="text-sm">Supported formats: JPG, PNG, DICOM</p>
-                </div>
-                <input type="file" id="fileInput" accept="image/png, image/jpeg, .dcm" style="display: none;">
+            <div class="explainable-ai doc-panel glass-panel-inner">
+                <h4><img src="https://img.icons8.com/ios-filled/50/ffffff/info.png" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Explainable AI Summary</h4>
+                <p id="explainText">The system detected hypodense regions matching typical stroke signatures. Red highlights on the overlay indicate the precise location of the anomaly.</p>
             </div>
-
-            <!-- Loading State -->
-            <div id="loadingState" class="hidden">
-                <div class="spinner"></div>
-                <p>Analyzing brain regions...</p>
-            </div>
-
-            <!-- Results Section -->
-            <div id="resultsArea" class="hidden fade-in">
-                <div class="results-header">
-                    <h3>Analysis Complete</h3>
-                    <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
-                </div>
-
-                <div class="image-grid">
-                    <div class="image-box glass-panel-inner">
-                        <h4>Original Scan</h4>
-                        <img id="origImage" src="" alt="Original Scan" class="result-img">
-                    </div>
-                    <div class="image-box glass-panel-inner">
-                        <h4>Segmented Mask</h4>
-                        <img id="maskImage" src="" alt="Mask" class="result-img">
-                    </div>
-                    <div class="image-box glass-panel-inner highlight-box">
-                        <h4>AI Overlay <span class="badge">Recommended</span></h4>
-                        <img id="overlayImage" src="" alt="Overlay" class="result-img">
-                    </div>
-                </div>
-
-                <div class="results-actions">
-                    <button class="btn-primary-outline" id="resetBtn">Analyze Another Scan</button>
-                    <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary">Download Overlay</a>
-                </div>
-                
-                <div class="explainable-ai doc-panel glass-panel-inner">
-                    <h4><img src="https://img.icons8.com/ios-filled/50/ffffff/info.png" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Explainable AI Summary</h4>
-                    <p id="explainText">The system detected hypodense regions matching typical stroke signatures. Red highlights on the overlay indicate the precise location of the anomaly.</p>
-                </div>
-            </div>
-
         </div>
-    </main>
 
-    <script>
-        const predictApiUrl = "{% url 'predict_api' %}";
-    </script>
-    <script src="{% static 'segmentation/js/app.js' %}"></script>
-</body>
-</html>
+    </div>
+</main>
+
+<!-- Disclaimer Modal -->
+<div id="disclaimerModal" class="modal-overlay">
+    <div class="modal-content glass-panel">
+        <h3>Medical Research Disclaimer</h3>
+        <p>This software is provided strictly for academic, educational, and research purposes. It is <strong>not FDA-approved</strong> and is <strong>not a certified medical device</strong>.</p>
+        <p>By proceeding, you agree that this tool will not be used for clinical diagnosis, and you confirm that any data uploaded contains no personally identifiable information (PII) or Protected Health Information (PHI).</p>
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <a href="{% url 'landing' %}" class="btn-primary-outline" style="text-decoration: none;">Decline & Return</a>
+            <button id="acceptDisclaimerBtn" class="btn-primary">I Accept</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Basic Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-overlay.hidden {
+    display: none;
+}
+.modal-content {
+    max-width: 600px;
+    padding: 2.5rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const predictApiUrl = "{% url 'predict_api' %}";
+    
+    // Disclaimer logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const disclaimerModal = document.getElementById('disclaimerModal');
+        const acceptBtn = document.getElementById('acceptDisclaimerBtn');
+        
+        if (!localStorage.getItem('disclaimerAccepted')) {
+            disclaimerModal.classList.remove('hidden');
+        } else {
+            disclaimerModal.classList.add('hidden');
+        }
+
+        acceptBtn.addEventListener('click', () => {
+            localStorage.setItem('disclaimerAccepted', 'true');
+            disclaimerModal.classList.add('hidden');
+        });
+    });
+</script>
+<script src="{% static 'segmentation/js/app.js' %}"></script>
+{% endblock %}
