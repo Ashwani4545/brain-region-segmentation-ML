@@ -55,7 +55,7 @@ def _get_brain_mask(grey: np.ndarray) -> np.ndarray:
     return brain_mask
 
 
-def _segment_dicom(ds) -> tuple[np.ndarray, np.ndarray]:
+def _segment_dicom(ds, hu_lo=15.0, hu_hi=35.0, min_area=50) -> tuple[np.ndarray, np.ndarray]:
     """
     DICOM segmentation using real HU values.
 
@@ -77,10 +77,9 @@ def _segment_dicom(ds) -> tuple[np.ndarray, np.ndarray]:
     # Brain mask (soft tissue only, skull stripped)
     brain_mask = _get_brain_mask(img_display)
 
-    # Hypodense band: HU 15–35 (lower than normal parenchyma ~30–45 HU)
+    # Hypodense band: HU hu_lo–hu_hi (lower than normal parenchyma ~30–45 HU)
     # These values correspond to acute infarcts / oedema
-    hypo_lo, hypo_hi = 15, 35
-    hypo_raw = ((hu >= hypo_lo) & (hu <= hypo_hi)).astype(np.uint8) * 255
+    hypo_raw = ((hu >= hu_lo) & (hu <= hu_hi)).astype(np.uint8) * 255
 
     # Restrict to brain region only
     hypo_in_brain = cv2.bitwise_and(hypo_raw, brain_mask)
@@ -91,17 +90,17 @@ def _segment_dicom(ds) -> tuple[np.ndarray, np.ndarray]:
     cleaned = cv2.morphologyEx(hypo_in_brain, cv2.MORPH_OPEN,  k_open)
     cleaned = cv2.morphologyEx(cleaned,       cv2.MORPH_CLOSE, k_close)
 
-    # Remove very small regions (< 50 px) — likely noise
+    # Remove very small regions (< min_area px) — likely noise
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cleaned, connectivity=8)
     final_mask = np.zeros_like(cleaned)
     for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] >= 50:
+        if stats[i, cv2.CC_STAT_AREA] >= min_area:
             final_mask[labels == i] = 255
 
     return img_display, final_mask
 
 
-def _segment_image(img_grey: np.ndarray) -> np.ndarray:
+def _segment_image(img_grey: np.ndarray, min_area=30) -> np.ndarray:
     """
     Adaptive segmentation for JPG/PNG images that lack HU information.
 
@@ -155,7 +154,7 @@ def _segment_image(img_grey: np.ndarray) -> np.ndarray:
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cleaned, connectivity=8)
     final_mask = np.zeros_like(cleaned)
     for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] >= 30:
+        if stats[i, cv2.CC_STAT_AREA] >= min_area:
             final_mask[labels == i] = 255
 
     return final_mask
@@ -206,7 +205,7 @@ class InferenceService:
                 "thresholding pipeline (clinically meaningful without training)."
             )
 
-    def process_image(self, input_path: str, output_dir: str) -> dict:
+    def process_image(self, input_path: str, output_dir: str, hu_lo=15.0, hu_hi=35.0, min_area_dicom=50, min_area_image=30) -> dict:
         """
         Segment a brain CT image and produce mask + overlay outputs.
 
@@ -221,7 +220,7 @@ class InferenceService:
         if is_dicom:
             import pydicom
             ds  = pydicom.dcmread(input_path)
-            img_display, mask = _segment_dicom(ds)
+            img_display, mask = _segment_dicom(ds, hu_lo=hu_lo, hu_hi=hu_hi, min_area=min_area_dicom)
         else:
             img_grey = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
             if img_grey is None:
@@ -232,7 +231,7 @@ class InferenceService:
             if self.model is not None:
                 mask = _unet_segment(self.model, img_grey, self.device)
             else:
-                mask = _segment_image(img_grey)
+                mask = _segment_image(img_grey, min_area=min_area_image)
 
         if img_display is None:
             raise ValueError(f"Failed to decode image pixels from: {input_path}")

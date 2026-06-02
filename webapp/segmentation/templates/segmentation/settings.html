@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration Settings | NeuroDetect AI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/segmentation/css/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body class="dark-theme app-body">
+    
+    <div class="background-effects">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2" style="right: auto; left: -10vw; top: 50vh;"></div>
+    </div>
+
+    <!-- PACS Medical Suite Navbar -->
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <span class="gradient-text">NeuroDetect AI</span>
+            <span class="badge" style="margin-left: 10px; position: static; background: rgba(59, 130, 246, 0.2); color: var(--accent-primary); border: 1px solid rgba(59, 130, 246, 0.3);">Clinical Suite</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard/">Dashboard</a></li>
+            <li><a href="/registry/">Registry</a></li>
+            <li><a href="/app/">Scanner</a></li>
+            <li><a href="/settings/" class="nav-active">Calibration</a></li>
+            <li><a href="/" class="btn-primary-outline" style="padding: 0.4rem 1rem;">Log Out</a></li>
+        </ul>
+    </nav>
+
+    <main class="app-container" style="max-width: 800px;">
+        <div class="glass-panel main-panel" style="padding: 2.5rem;">
+            <h2 class="panel-title" style="text-align: left; margin-bottom: 0.5rem;">Clinical Calibration Panel</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fine-tune Hounsfield Unit (HU) windows and structural filters for the brain region detection engine.</p>
+            
+            {% if save_success %}
+            <div class="alert-message alert-success">
+                Calibration parameters saved successfully! Updates are applied immediately to all new scan processes.
+            </div>
+            {% endif %}
+            
+            {% if save_error %}
+            <div class="alert-message alert-danger">
+                {{ save_error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/settings/" class="settings-form">
+                {% csrf_token %}
+                
+                <!-- Section 1: Hounsfield Units -->
+                <div class="setting-group">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.15rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">DICOM Hounsfield Unit (HU) Window</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Specify the Hounsfield Unit bounds corresponding to cytotoxic brain tissue edema. Normal brain parenchyma is typically 30–45 HU, while acute ischemia appears as a hypodense band (typically 15–35 HU).</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                        <div>
+                            <div class="setting-label">
+                                <span>Lower HU Bound</span>
+                                <span class="setting-val-display" id="loDisplay">{{ hu_lo }}</span>
+                            </div>
+                            <input type="range" name="hu_lo" min="0" max="50" step="0.5" value="{{ hu_lo }}" class="slider-control" id="loSlider">
+                        </div>
+                        <div>
+                            <div class="setting-label">
+                                <span>Upper HU Bound</span>
+                                <span class="setting-val-display" id="hiDisplay">{{ hu_hi }}</span>
+                            </div>
+                            <input type="range" name="hu_hi" min="20" max="80" step="0.5" value="{{ hu_hi }}" class="slider-control" id="hiSlider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Noise Filtration -->
+                <div class="setting-group">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.15rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Structural Noise Filters</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Set the minimum pixel area threshold for identified hypodense regions. Any connected candidate region smaller than these pixel areas will be filtered out as noise.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                        <div>
+                            <div class="setting-label">
+                                <span>DICOM Min Area</span>
+                                <span class="setting-val-display" id="dicomAreaDisplay">{{ min_area_dicom }} px</span>
+                            </div>
+                            <input type="range" name="min_area_dicom" min="10" max="300" step="5" value="{{ min_area_dicom }}" class="slider-control" id="dicomAreaSlider">
+                        </div>
+                        <div>
+                            <div class="setting-label">
+                                <span>Image Min Area</span>
+                                <span class="setting-val-display" id="imageAreaDisplay">{{ min_area_image }} px</span>
+                            </div>
+                            <input type="range" name="min_area_image" min="5" max="200" step="5" value="{{ min_area_image }}" class="slider-control" id="imageAreaSlider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: 1.5rem; margin-top: 1rem;">
+                    <a href="/dashboard/" class="btn-primary-outline" style="padding: 0.75rem 2rem;">Back to Diagnostics</a>
+                    <button type="submit" class="btn-primary" style="padding: 0.75rem 2.5rem;">Apply Calibration</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Setup real-time value display updating for sliders
+        const loSlider = document.getElementById('loSlider');
+        const loDisplay = document.getElementById('loDisplay');
+        loSlider.addEventListener('input', () => {
+            loDisplay.innerText = parseFloat(loSlider.value).toFixed(1);
+        });
+
+        const hiSlider = document.getElementById('hiSlider');
+        const hiDisplay = document.getElementById('hiDisplay');
+        hiSlider.addEventListener('input', () => {
+            hiDisplay.innerText = parseFloat(hiSlider.value).toFixed(1);
+        });
+
+        const dicomAreaSlider = document.getElementById('dicomAreaSlider');
+        const dicomAreaDisplay = document.getElementById('dicomAreaDisplay');
+        dicomAreaSlider.addEventListener('input', () => {
+            dicomAreaDisplay.innerText = dicomAreaSlider.value + " px";
+        });
+
+        const imageAreaSlider = document.getElementById('imageAreaSlider');
+        const imageAreaDisplay = document.getElementById('imageAreaDisplay');
+        imageAreaSlider.addEventListener('input', () => {
+            imageAreaDisplay.innerText = imageAreaSlider.value + " px";
+        });
+    </script>
+</body>
+</html>

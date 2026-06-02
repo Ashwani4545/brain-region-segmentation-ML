@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics Dashboard | NeuroDetect AI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/segmentation/css/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body class="dark-theme app-body">
+    
+    <div class="background-effects">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2" style="right: auto; left: -10vw; top: 50vh;"></div>
+    </div>
+
+    <!-- PACS Medical Suite Navbar -->
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <span class="gradient-text">NeuroDetect AI</span>
+            <span class="badge" style="margin-left: 10px; position: static; background: rgba(59, 130, 246, 0.2); color: var(--accent-primary); border: 1px solid rgba(59, 130, 246, 0.3);">Clinical Suite</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard/" class="nav-active">Dashboard</a></li>
+            <li><a href="/registry/">Registry</a></li>
+            <li><a href="/app/">Scanner</a></li>
+            <li><a href="/settings/">Calibration</a></li>
+            <li><a href="/" class="btn-primary-outline" style="padding: 0.4rem 1rem;">Log Out</a></li>
+        </ul>
+    </nav>
+
+    <main class="app-container">
+        <!-- Telemetry KPIs -->
+        <div class="dashboard-grid">
+            <!-- Card 1 -->
+            <div class="stat-card glass-panel">
+                <div class="stat-title">Scans Processed</div>
+                <div class="stat-value">{{ total_scans }}</div>
+                <div class="stat-desc">Total clinical acquisitions</div>
+            </div>
+            <!-- Card 2 -->
+            <div class="stat-card glass-panel" style="border-color: rgba(239, 68, 68, 0.15);">
+                <div class="stat-title">Stroke Detected</div>
+                <div class="stat-value" style="color: var(--danger);">{{ abnormal_scans }}</div>
+                <div class="stat-desc">Abnormal hypodense rate: <span>{{ abnormal_rate }}</span></div>
+            </div>
+            <!-- Card 3 -->
+            <div class="stat-card glass-panel" style="border-color: rgba(16, 185, 129, 0.15);">
+                <div class="stat-title">Normal Scans</div>
+                <div class="stat-value" style="color: var(--success);">{{ normal_scans }}</div>
+                <div class="stat-desc">No acute infarcts detected</div>
+            </div>
+            <!-- Card 4 -->
+            <div class="stat-card glass-panel">
+                <div class="stat-title">System Status</div>
+                <div class="stat-value system-status">
+                    <span class="status-pulse"></span>
+                    <span style="font-size: 1.5rem; font-weight: 600;">ACTIVE</span>
+                </div>
+                <div class="stat-desc">Avg. Lesion Load: <span>{{ avg_confidence }}</span></div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Registry -->
+        <div class="glass-panel main-panel" style="padding: 2rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.4rem; text-align: left; margin: 0;">Recent Scan Registry</h2>
+                <a href="/registry/" class="btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">View All Records</a>
+            </div>
+
+            <div class="med-table-wrapper">
+                <table class="med-table">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Scan File</th>
+                            <th>Modality</th>
+                            <th>Processed Date</th>
+                            <th>Confidence</th>
+                            <th>Finding</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in recent_scans %}
+                        <tr>
+                            <td style="font-family: monospace; font-weight: 700; color: var(--accent-primary);">{{ scan.patient_id }}</td>
+                            <td>{{ scan.scan_name }}</td>
+                            <td><span class="med-badge med-badge-neutral">{{ scan.modality }}</span></td>
+                            <td>{{ scan.created_at|date:"Y-m-d H:i:s" }}</td>
+                            <td style="font-family: monospace; font-weight: 600;">{{ scan.confidence }}%</td>
+                            <td>
+                                {% if scan.detected %}
+                                <span class="med-badge med-badge-danger">Hypodense Region</span>
+                                {% else %}
+                                <span class="med-badge med-badge-success">Clear</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No diagnostic scans found. Upload a scan in the Acquisition page to begin.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- E-Learning Explainable AI Banner -->
+        <div class="explainable-ai doc-panel glass-panel">
+            <h4><img src="https://img.icons8.com/ios-filled/50/ffffff/info.png" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Clinical Workflow Notice</h4>
+            <p>This software serves as a diagnostic support tool and is not intended for primary diagnostic interpretations. Segmented regions represent hypodense areas (HU 15–35) corresponding to cytotoxic brain edema typical of early ischemic stroke. All boundaries should be verified by a radiologist.</p>
+        </div>
+    </main>
+</body>
+</html>

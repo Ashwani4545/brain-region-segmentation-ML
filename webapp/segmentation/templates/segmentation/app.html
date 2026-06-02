@@ -16,10 +16,19 @@
         <div class="blob blob-2" style="right: auto; left: -10vw; top: 50vh;"></div>
     </div>
 
+    <!-- PACS Medical Suite Navbar -->
     <nav class="navbar glass-panel">
         <div class="logo">
-            <a href="{% url 'landing' %}"><span class="gradient-text">NeuroDetect AI</span></a>
+            <span class="gradient-text">NeuroDetect AI</span>
+            <span class="badge" style="margin-left: 10px; position: static; background: rgba(59, 130, 246, 0.2); color: var(--accent-primary); border: 1px solid rgba(59, 130, 246, 0.3);">Clinical Suite</span>
         </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard/">Dashboard</a></li>
+            <li><a href="/registry/">Registry</a></li>
+            <li><a href="/app/" class="nav-active">Scanner</a></li>
+            <li><a href="/settings/">Calibration</a></li>
+            <li><a href="/" class="btn-primary-outline" style="padding: 0.4rem 1rem;">Log Out</a></li>
+        </ul>
     </nav>
 
     <main class="app-container">
