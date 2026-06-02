@@ -1,4 +1,15 @@
+---
+title: NeuroDetect AI
+emoji: 🧠
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: true
+---
+
 # 🧠 NeuroDetect AI — Brain NCCT Hypodense Region Segmentation
+
 
 <div align="center">
 
