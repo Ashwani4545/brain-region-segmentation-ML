@@ -1,5 +1,5 @@
 """
-Django settings for webapp project — production-ready with env var overrides.
+Django settings — works in both local dev and production (HF Spaces / Render).
 """
 
 from pathlib import Path
@@ -13,10 +13,9 @@ SECRET_KEY = os.environ.get(
     'django-insecure-vqvglaka)6nb#d(prk6hu(m40=y@bp3h4*c9=l(i8z#g1xhzrd'
 )
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'   # True locally, False in prod
 
-# Accept all hosts by default (HF Spaces uses dynamic subdomains)
-_allowed = os.environ.get('ALLOWED_HOSTS', '*')
+_allowed = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*')
 ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',')]
 
 # ── Applications ──────────────────────────────────────────────────────────────
@@ -31,9 +30,18 @@ INSTALLED_APPS = [
     'segmentation',
 ]
 
-MIDDLEWARE = [
+# Build middleware list — add whitenoise only if installed
+_middleware = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # serve static files in prod
+]
+
+try:
+    import whitenoise  # noqa: F401
+    _middleware.append('whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    pass  # Not installed locally — that's fine
+
+_middleware += [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -41,6 +49,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+MIDDLEWARE = _middleware
 
 ROOT_URLCONF = 'webapp.urls'
 
@@ -85,10 +95,14 @@ USE_TZ        = True
 
 # ── Static & Media files ──────────────────────────────────────────────────────
 STATIC_URL  = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')   # collectstatic target
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise compressed static file serving
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise compressed static files — only if whitenoise is installed
+try:
+    import whitenoise  # noqa: F401
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+except ImportError:
+    pass  # Falls back to Django default
 
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
