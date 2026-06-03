@@ -17,3 +17,8 @@ django>=4.2,<6.0
 djangorestframework
 gunicorn==21.2.0
 whitenoise==6.7.0
+
+dj-database-url
+psycopg2-binary
+django-storages
+boto3
