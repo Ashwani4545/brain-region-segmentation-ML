@@ -645,6 +645,39 @@ body.dark-theme {
     border-radius: 2px;
 }
 
+/* Django Form Inputs */
+.settings-form input[type="text"],
+.settings-form input[type="password"],
+.settings-form input[type="email"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: 0.3s;
+}
+
+.settings-form input[type="text"]:focus,
+.settings-form input[type="password"]:focus,
+.settings-form input[type="email"]:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.settings-form ul.errorlist {
+    color: var(--danger);
+    list-style: none;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.settings-form ul.errorlist li {
+    margin-bottom: 0.25rem;
+}
+
 /* Footer */
 .site-footer {
     margin-top: 4rem;
