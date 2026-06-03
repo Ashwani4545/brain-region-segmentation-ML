@@ -49,9 +49,6 @@ RUN python manage.py collectstatic --noinput
 # Create writable media directories
 RUN mkdir -p media/uploads media/results
 
-# Run migrations at build time (SQLite — safe for single-instance HF Space)
-RUN python manage.py migrate --noinput
-
 # HF Spaces Docker apps MUST listen on port 7860
 EXPOSE 7860
 
@@ -59,9 +56,11 @@ EXPOSE 7860
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
-CMD ["gunicorn", "webapp.wsgi:application", \
-     "--bind", "0.0.0.0:7860", \
-     "--workers", "1", \
-     "--threads", "2", \
-     "--timeout", "180", \
-     "--log-level", "info"]
+# Run migrations at runtime to connect to external databases, then start Gunicorn
+CMD python manage.py migrate --noinput && \
+    gunicorn webapp.wsgi:application \
+    --bind 0.0.0.0:7860 \
+    --workers 1 \
+    --threads 2 \
+    --timeout 180 \
+    --log-level info
