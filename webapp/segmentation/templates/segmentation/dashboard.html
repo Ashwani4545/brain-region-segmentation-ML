@@ -7,33 +7,33 @@
 {% block content %}
 <main class="app-container">
     <!-- Telemetry KPIs -->
-    <div class="dashboard-grid">
+    <div class="dashboard-grid animate-slide-up">
         <!-- Card 1 -->
-        <div class="stat-card glass-panel">
+        <div class="stat-card stat-card-glowing glass-panel" style="--glow-color: rgba(59, 130, 246, 0.2); --glow-border: rgba(59, 130, 246, 0.4);">
             <div class="stat-title">Scans Processed</div>
             <div class="stat-value">{{ total_scans }}</div>
             <div class="stat-desc">Total clinical acquisitions</div>
         </div>
         <!-- Card 2 -->
-        <div class="stat-card glass-panel" style="border-color: rgba(239, 68, 68, 0.15);">
+        <div class="stat-card stat-card-glowing glass-panel" style="--glow-color: rgba(239, 68, 68, 0.25); --glow-border: rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 0.15);">
             <div class="stat-title">Stroke Detected</div>
             <div class="stat-value" style="color: var(--danger);">{{ abnormal_scans }}</div>
-            <div class="stat-desc">Abnormal hypodense rate: <span>{{ abnormal_rate }}</span></div>
+            <div class="stat-desc">Abnormal hypodense rate: <span style="font-weight: bold; color: var(--danger);">{{ abnormal_rate }}</span></div>
         </div>
         <!-- Card 3 -->
-        <div class="stat-card glass-panel" style="border-color: rgba(16, 185, 129, 0.15);">
+        <div class="stat-card stat-card-glowing glass-panel" style="--glow-color: rgba(16, 185, 129, 0.25); --glow-border: rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.15);">
             <div class="stat-title">Normal Scans</div>
             <div class="stat-value" style="color: var(--success);">{{ normal_scans }}</div>
             <div class="stat-desc">No acute infarcts detected</div>
         </div>
         <!-- Card 4 -->
-        <div class="stat-card glass-panel">
+        <div class="stat-card stat-card-glowing glass-panel" style="--glow-color: rgba(139, 92, 246, 0.25); --glow-border: rgba(139, 92, 246, 0.4);">
             <div class="stat-title">System Status</div>
             <div class="stat-value system-status">
                 <span class="status-pulse"></span>
                 <span style="font-size: 1.5rem; font-weight: 600;">ACTIVE</span>
             </div>
-            <div class="stat-desc">Avg. Lesion Load: <span>{{ avg_confidence }}</span></div>
+            <div class="stat-desc">Avg. Lesion Load: <span style="font-weight: bold; color: var(--accent-secondary);">{{ avg_confidence }}</span></div>
         </div>
     </div>
 

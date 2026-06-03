@@ -7,8 +7,8 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Avg
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from .models import PatientScan
 
@@ -86,6 +86,43 @@ def dashboard_page(request):
         'recent_scans': recent_scans,
     }
     return render(request, 'segmentation/dashboard.html', context)
+
+@login_required(login_url='login')
+def profile_page(request):
+    user = request.user
+    total_scans = PatientScan.objects.filter(user=user).count()
+    
+    password_form = PasswordChangeForm(user)
+    
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            email = request.POST.get('email', '').strip()
+            username = request.POST.get('username', '').strip()
+            if username:
+                user.username = username
+            if email:
+                user.email = email
+            user.save()
+            request.session['profile_msg'] = 'Profile updated successfully.'
+            return redirect('profile')
+            
+        elif 'change_password' in request.POST:
+            password_form = PasswordChangeForm(user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Keep user logged in
+                request.session['profile_msg'] = 'Password changed successfully.'
+                return redirect('profile')
+            else:
+                request.session['profile_err'] = 'Please correct the errors below to change your password.'
+
+    context = {
+        'total_scans': total_scans,
+        'password_form': password_form,
+        'profile_msg': request.session.pop('profile_msg', None),
+        'profile_err': request.session.pop('profile_err', None),
+    }
+    return render(request, 'segmentation/profile.html', context)
 
 @login_required(login_url='login')
 def registry_page(request):

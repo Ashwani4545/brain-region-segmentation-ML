@@ -1,0 +1,84 @@
+{% extends 'segmentation/base.html' %}
+{% load static %}
+
+{% block title %}User Profile | NeuroDetect AI{% endblock %}
+{% block body_class %}dark-theme app-body{% endblock %}
+
+{% block content %}
+<main class="app-container">
+    <div class="glass-panel main-panel" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h2 class="panel-title" style="text-align: left; margin: 0;">User Profile</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Manage your account details and security settings.</p>
+            </div>
+            <div class="profile-avatar glass-panel-inner" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); border: 2px solid var(--accent-primary); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
+                {{ user.username|make_list|first|upper }}
+            </div>
+        </div>
+
+        {% if profile_msg %}
+            <div class="alert-message alert-success" style="margin-bottom: 1.5rem;">
+                {{ profile_msg }}
+            </div>
+        {% endif %}
+        {% if profile_err %}
+            <div class="alert-message alert-danger" style="margin-bottom: 1.5rem;">
+                {{ profile_err }}
+            </div>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem;">
+            <div class="stat-card glass-panel-inner" style="padding: 1.5rem; border-left: 4px solid var(--accent-primary);">
+                <div class="stat-label">Member Since</div>
+                <div class="stat-value" style="font-size: 1.2rem; margin-top: 0.5rem;">{{ user.date_joined|date:"F j, Y" }}</div>
+            </div>
+            <div class="stat-card glass-panel-inner" style="padding: 1.5rem; border-left: 4px solid var(--accent-secondary);">
+                <div class="stat-label">Total Scans Uploaded</div>
+                <div class="stat-value" style="font-size: 1.2rem; margin-top: 0.5rem;">{{ total_scans }}</div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Account Details</h3>
+        <form method="POST" action="{% url 'profile' %}" class="settings-form" style="margin-bottom: 2.5rem;">
+            {% csrf_token %}
+            <input type="hidden" name="update_profile" value="1">
+            
+            <div class="setting-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="search-input" value="{{ user.username }}" required style="width: 100%; max-width: 100%;">
+            </div>
+            
+            <div class="setting-group" style="margin-top: 1.25rem;">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="search-input" value="{{ user.email }}" style="width: 100%; max-width: 100%;">
+            </div>
+
+            <button type="submit" class="btn-primary" style="margin-top: 1.5rem;">Update Details</button>
+        </form>
+
+        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Change Password</h3>
+        <form method="POST" action="{% url 'profile' %}" class="settings-form">
+            {% csrf_token %}
+            <input type="hidden" name="change_password" value="1">
+            
+            {% for field in password_form %}
+                <div class="setting-group" style="margin-bottom: 1.25rem;">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <small style="color: #ef4444; display: block; margin-top: 0.25rem;">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-primary-outline" style="margin-top: 0.5rem;">Change Password</button>
+        </form>
+
+    </div>
+</main>
+{% endblock %}

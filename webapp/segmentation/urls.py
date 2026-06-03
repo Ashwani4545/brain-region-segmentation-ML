@@ -13,6 +13,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard_page, name='dashboard'),
     path('registry/', views.registry_page, name='registry'),
     path('settings/', views.settings_page, name='settings'),
+    path('profile/', views.profile_page, name='profile'),
     path('api/predict/', views.predict_api, name='predict_api'),
     path('api/scan/<int:scan_id>/delete/', views.delete_scan_api, name='delete_scan'),
 ]
