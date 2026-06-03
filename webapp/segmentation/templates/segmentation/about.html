@@ -4,21 +4,83 @@
 {% block title %}About | NeuroDetect AI{% endblock %}
 
 {% block content %}
-<main class="content-section">
-    <div class="glass-panel text-content" style="max-width: 800px; margin: 4rem auto; padding: 3rem;">
-        <h2>About NeuroDetect AI</h2>
-        <p>NeuroDetect AI is a state-of-the-art web application designed to automatically detect, segment, and highlight hypodense regions (such as those caused by ischemic stroke, oedema, or infarction) in Brain Non-Contrast Computed Tomography (NCCT) scans.</p>
-        
-        <h3>Our Technology</h3>
-        <p>At the core of NeuroDetect AI is a dual-mode physics-based and deep-learning pipeline:</p>
-        <ul>
-            <li><strong>2.5D U-Net Architecture:</strong> Utilizes multi-slice contextual information for robust 3D-like segmentation while remaining computationally efficient.</li>
-            <li><strong>Hounsfield Unit Thresholding:</strong> For raw DICOM files, we apply exact physics-based clinical windows (WL=35, WW=100) for pinpoint accuracy.</li>
-            <li><strong>Adaptive Intensity Modeling:</strong> For standard JPG/PNG formats lacking metadata, we use statistical outlier detection to reliably highlight hypodense anomalies.</li>
-        </ul>
+<main class="app-container" style="padding-top: 4rem;">
+    <!-- Hero Section -->
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;"><span class="gradient-text">About NeuroDetect AI</span></h1>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+            A state-of-the-art web application designed to automatically detect, segment, and highlight hypodense regions in Brain NCCT scans.
+        </p>
+    </div>
 
-        <h3>Purpose & Disclaimer</h3>
-        <p>This application was developed by Ashwani Pandey as an academic and research project. <strong>It is not a certified medical device</strong> and should never be used to make clinical or diagnostic decisions without the review of a qualified medical professional.</p>
+    <div class="glass-panel" style="padding: 3rem; margin-bottom: 3rem;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">Our Technology Core</h2>
+        <p style="color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.7;">
+            At the core of NeuroDetect AI is a sophisticated dual-mode physics-based and deep-learning pipeline designed for maximum accuracy and clinical relevance.
+        </p>
+        
+        <div class="features-grid" style="margin-top: 0; justify-content: flex-start; gap: 1.5rem;">
+            <!-- Tech Card 1 -->
+            <div class="glass-panel-inner" style="padding: 1.5rem; flex: 1; min-width: 250px; border-left: 4px solid var(--accent-primary);">
+                <div style="color: var(--accent-primary); margin-bottom: 1rem;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+                </div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">2.5D U-Net Architecture</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    Utilizes multi-slice contextual information for robust 3D-like segmentation while remaining highly computationally efficient for web deployment.
+                </p>
+            </div>
+            
+            <!-- Tech Card 2 -->
+            <div class="glass-panel-inner" style="padding: 1.5rem; flex: 1; min-width: 250px; border-left: 4px solid var(--success);">
+                <div style="color: var(--success); margin-bottom: 1rem;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">HU Thresholding</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    For raw DICOM files, we apply exact physics-based clinical windows (WL=35, WW=100) to ensure pinpoint density accuracy.
+                </p>
+            </div>
+
+            <!-- Tech Card 3 -->
+            <div class="glass-panel-inner" style="padding: 1.5rem; flex: 1; min-width: 250px; border-left: 4px solid var(--accent-secondary);">
+                <div style="color: var(--accent-secondary); margin-bottom: 1rem;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Adaptive Modeling</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                    For standard JPG/PNG formats lacking metadata, we use statistical outlier detection to reliably highlight hypodense anomalies.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer & Disclaimer Section -->
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <!-- Developer Profile -->
+        <div class="glass-panel" style="flex: 1; min-width: 300px; padding: 2.5rem; display: flex; align-items: center; gap: 1.5rem;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: bold; flex-shrink: 0;">
+                AP
+            </div>
+            <div>
+                <h3 style="font-size: 1.4rem; margin-bottom: 0.25rem;">Ashwani Pandey</h3>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.5rem;">Creator & Lead Developer</p>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">
+                    Developed this application as an advanced academic and research project focusing on medical image analysis and AI.
+                </p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="glass-panel" style="flex: 1; min-width: 300px; padding: 2.5rem; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: var(--danger);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <h3 style="font-size: 1.2rem; margin: 0;">Medical Disclaimer</h3>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                <strong>This is not a certified medical device.</strong> This software is strictly for academic and research purposes only. It should never be used to make clinical or diagnostic decisions without the review of a qualified medical professional.
+            </p>
+        </div>
     </div>
 </main>
 {% endblock %}
