@@ -18,6 +18,11 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'   # True locally, False in pro
 _allowed = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*')
 ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',')]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.hf.space',
+    'https://ashwani4545-neurodetect-ai.hf.space',
+]
+
 # ── Applications ──────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
