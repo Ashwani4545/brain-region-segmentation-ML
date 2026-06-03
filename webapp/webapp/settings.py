@@ -23,6 +23,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://ashwani4545-neurodetect-ai.hf.space',
 ]
 
+# Allow cookies in Hugging Face iframe
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+
 # ── Applications ──────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
