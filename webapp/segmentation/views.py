@@ -7,6 +7,9 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Avg
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from .models import PatientScan
 
 # Allowed file extensions for upload validation
@@ -16,6 +19,42 @@ MAX_UPLOAD_MB = 20
 def landing_page(request):
     return render(request, 'segmentation/index.html')
 
+def terms_page(request):
+    return render(request, 'segmentation/terms.html')
+
+# ── Authentication Views ──────────────────────────────────────────────────────
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('app')
+    else:
+        form = UserCreationForm()
+    return render(request, 'segmentation/register.html', {'form': form})
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('app')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'segmentation/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('landing')
+
+# ── Protected Views ───────────────────────────────────────────────────────────
+@login_required(login_url='login')
 def app_page(request):
     return render(request, 'segmentation/app.html')
 
@@ -25,11 +64,9 @@ def about_page(request):
 def contact_page(request):
     return render(request, 'segmentation/contact.html')
 
-def terms_page(request):
-    return render(request, 'segmentation/terms.html')
-
+@login_required(login_url='login')
 def dashboard_page(request):
-    scans = PatientScan.objects.all()
+    scans = PatientScan.objects.filter(user=request.user)
     total_scans = scans.count()
     abnormal_scans = scans.filter(detected=True).count()
     normal_scans = total_scans - abnormal_scans
@@ -50,14 +87,16 @@ def dashboard_page(request):
     }
     return render(request, 'segmentation/dashboard.html', context)
 
+@login_required(login_url='login')
 def registry_page(request):
     query = request.GET.get('q', '')
-    scans = PatientScan.objects.all()
+    scans = PatientScan.objects.filter(user=request.user)
     if query:
         scans = scans.filter(patient_id__icontains=query) | scans.filter(scan_name__icontains=query)
     
     return render(request, 'segmentation/registry.html', {'scans': scans, 'query': query})
 
+@login_required(login_url='login')
 def settings_page(request):
     if request.method == 'POST':
         try:
@@ -174,6 +213,7 @@ def predict_api(request):
     try:
         modality_str = 'NCCT' if ext == '.dcm' else 'Slice Image'
         PatientScan.objects.create(
+            user=request.user if request.user.is_authenticated else None,
             scan_name=image_file.name,
             modality=modality_str,
             original_image=original_url,

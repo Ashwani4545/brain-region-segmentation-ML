@@ -1,8 +1,10 @@
 import random
 from datetime import datetime
 from django.db import models
+from django.contrib.auth.models import User
 
 class PatientScan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     patient_id = models.CharField(max_length=50, unique=True, editable=False)
     scan_name = models.CharField(max_length=255)
     modality = models.CharField(max_length=20, default='NCCT')

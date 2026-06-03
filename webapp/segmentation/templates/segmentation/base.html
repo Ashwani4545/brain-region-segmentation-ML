@@ -24,10 +24,16 @@
         <ul class="nav-links">
             <li><a href="{% url 'landing' %}">Home</a></li>
             <li><a href="{% url 'about' %}">About</a></li>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'registry' %}">Registry</a></li>
-            <li><a href="{% url 'settings' %}">Settings</a></li>
-            <li><a href="{% url 'app' %}" class="btn-primary-outline">Scanner</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'registry' %}">Registry</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+                <li><a href="{% url 'logout' %}">Log Out</a></li>
+                <li><a href="{% url 'app' %}" class="btn-primary-outline">Scanner</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Log In</a></li>
+                <li><a href="{% url 'register' %}" class="btn-primary-outline">Sign Up</a></li>
+            {% endif %}
         </ul>
     </nav>
 
