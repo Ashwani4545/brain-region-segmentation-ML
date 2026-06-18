@@ -1,0 +1,417 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+
+  .nd-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 32px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+  }
+  .nd-logo { display: flex; align-items: center; gap: 10px; }
+  .nd-logo-mark {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: #0B3D6B; display: flex; align-items: center; justify-content: center;
+  }
+  .nd-logo-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .nd-logo-sub { font-size: 11px; color: var(--color-text-secondary); }
+  .nd-nav { display: flex; gap: 24px; align-items: center; }
+  .nd-nav a { font-size: 13px; color: var(--color-text-secondary); text-decoration: none; }
+  .nd-nav a:hover { color: var(--color-text-primary); }
+  .nd-btn-launch {
+    background: #0B3D6B; color: #fff; border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 13px; cursor: pointer;
+  }
+
+  .nd-hero {
+    background: #020D1C;
+    padding: 64px 40px 56px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .nd-hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(11,61,107,0.18) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(11,61,107,0.18) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .nd-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(11,61,107,0.5); border: 0.5px solid #1a5490;
+    border-radius: 20px; padding: 4px 14px; margin-bottom: 24px;
+    font-size: 12px; color: #7BB8F0;
+  }
+  .nd-dot { width: 6px; height: 6px; border-radius: 50%; background: #3D9BE9; }
+  .nd-hero h1 {
+    font-size: 38px; font-weight: 500; color: #fff; line-height: 1.2;
+    margin-bottom: 16px; position: relative;
+  }
+  .nd-hero h1 span { color: #3D9BE9; }
+  .nd-hero p {
+    font-size: 15px; color: #7A9BBF; max-width: 520px;
+    margin: 0 auto 32px; line-height: 1.7; position: relative;
+  }
+  .nd-hero-btns { display: flex; gap: 12px; justify-content: center; position: relative; }
+  .nd-btn-primary {
+    background: #0B3D6B; color: #fff; border: none; border-radius: 8px;
+    padding: 11px 24px; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nd-btn-ghost {
+    background: transparent; color: #7BB8F0;
+    border: 0.5px solid #1a5490; border-radius: 8px;
+    padding: 11px 24px; font-size: 14px; cursor: pointer;
+  }
+
+  .nd-stats {
+    display: flex; justify-content: center; gap: 0; margin-top: 48px;
+    border: 0.5px solid #1a3a5c; border-radius: 10px;
+    overflow: hidden; max-width: 540px; margin-left: auto; margin-right: auto;
+    position: relative;
+  }
+  .nd-stat {
+    flex: 1; padding: 18px 20px; text-align: center;
+    border-right: 0.5px solid #1a3a5c;
+  }
+  .nd-stat:last-child { border-right: none; }
+  .nd-stat-val { font-size: 22px; font-weight: 500; color: #fff; }
+  .nd-stat-lbl { font-size: 11px; color: #4A6F91; margin-top: 2px; }
+
+  .nd-scan-section {
+    background: var(--color-background-secondary);
+    padding: 56px 40px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .nd-section-tag {
+    font-size: 11px; font-weight: 500; color: #1a5490;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .nd-section-title {
+    font-size: 22px; font-weight: 500; color: var(--color-text-primary);
+    margin-bottom: 8px;
+  }
+  .nd-section-sub {
+    font-size: 14px; color: var(--color-text-secondary); margin-bottom: 36px;
+  }
+
+  .nd-upload-area {
+    border: 1.5px dashed var(--color-border-secondary); border-radius: 12px;
+    padding: 40px 24px; text-align: center;
+    background: var(--color-background-primary); margin-bottom: 24px;
+  }
+  .nd-upload-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    background: #E6F1FB; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px; color: #185FA5; font-size: 24px;
+  }
+  .nd-upload-area p { font-size: 14px; color: var(--color-text-secondary); }
+  .nd-upload-area strong { font-weight: 500; color: var(--color-text-primary); }
+  .nd-formats {
+    display: flex; gap: 8px; justify-content: center; margin-top: 12px;
+  }
+  .nd-fmt {
+    background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 4px; padding: 3px 10px; font-size: 11px;
+    color: var(--color-text-secondary); font-family: var(--font-mono);
+  }
+
+  .nd-results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .nd-result-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary); border-radius: 10px;
+    overflow: hidden;
+  }
+  .nd-result-card-head {
+    padding: 8px 12px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 12px; font-weight: 500; color: var(--color-text-secondary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nd-scan-placeholder {
+    height: 130px; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .nd-badge-score {
+    position: absolute; bottom: 8px; right: 8px;
+    font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px;
+  }
+  .nd-badge-normal { background: #EAF3DE; color: #3B6D11; }
+  .nd-badge-anomaly { background: #FCEBEB; color: #A32D2D; }
+
+  .nd-features {
+    padding: 56px 40px;
+    background: var(--color-background-primary);
+  }
+  .nd-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+  .nd-feat-card {
+    border: 0.5px solid var(--color-border-tertiary); border-radius: 12px;
+    padding: 20px;
+  }
+  .nd-feat-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px; font-size: 20px;
+  }
+  .nd-feat-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--color-text-primary); }
+  .nd-feat-card p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+  .nd-pipeline {
+    background: var(--color-background-secondary);
+    padding: 56px 40px;
+    border-top: 0.5px solid var(--color-border-tertiary);
+  }
+  .nd-pipe-steps {
+    display: flex; align-items: flex-start; gap: 0; margin-top: 36px;
+  }
+  .nd-pipe-step { flex: 1; text-align: center; }
+  .nd-pipe-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #0B3D6B; color: #fff; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .nd-pipe-step h4 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .nd-pipe-step p { font-size: 12px; color: var(--color-text-secondary); }
+  .nd-pipe-arrow {
+    flex: 0 0 24px; margin-top: 14px;
+    color: var(--color-text-secondary); font-size: 16px; text-align: center;
+  }
+
+  .nd-tech {
+    padding: 40px 40px;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+  }
+  .nd-tech-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .nd-chip {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12px; color: var(--color-text-secondary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nd-chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .nd-disclaimer {
+    background: #FAEEDA; border-top: 0.5px solid #FAC775;
+    padding: 14px 40px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nd-disclaimer p { font-size: 12px; color: #633806; }
+
+  .nd-footer {
+    background: #020D1C; padding: 24px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .nd-footer-l { font-size: 12px; color: #4A6F91; }
+  .nd-footer-r { font-size: 12px; color: #4A6F91; }
+</style>
+
+<h2 class="sr-only">NeuroDetect AI — medical website mockup for brain NCCT hypodense region segmentation</h2>
+
+<div class="nd-header">
+  <div class="nd-logo">
+    <div class="nd-logo-mark">
+      <i class="ti ti-brain" aria-hidden="true" style="color:#7BB8F0; font-size:18px;"></i>
+    </div>
+    <div>
+      <div class="nd-logo-name">NeuroDetect AI</div>
+      <div class="nd-logo-sub">Brain NCCT Analysis Platform</div>
+    </div>
+  </div>
+  <nav class="nd-nav">
+    <a href="#">Features</a>
+    <a href="#">Pipeline</a>
+    <a href="#">Research</a>
+    <a href="#">Docs</a>
+    <button class="nd-btn-launch">Launch Scanner</button>
+  </nav>
+</div>
+
+<div class="nd-hero">
+  <div class="nd-hero-grid"></div>
+  <div class="nd-badge"><div class="nd-dot"></div>AI-Powered Neuroimaging · Research Tool</div>
+  <h1>Detect <span>hypodense regions</span><br>in brain NCCT scans</h1>
+  <p>Upload any brain CT image — DICOM, JPG, or PNG — and receive an instant AI segmentation overlay with lesion load score and explainable clinical summary.</p>
+  <div class="nd-hero-btns">
+    <button class="nd-btn-primary"><i class="ti ti-upload" aria-hidden="true"></i>Upload CT scan</button>
+    <button class="nd-btn-ghost">View on GitHub →</button>
+  </div>
+  <div class="nd-stats">
+    <div class="nd-stat">
+      <div class="nd-stat-val">2.5D</div>
+      <div class="nd-stat-lbl">U-Net architecture</div>
+    </div>
+    <div class="nd-stat">
+      <div class="nd-stat-val">3</div>
+      <div class="nd-stat-lbl">Inference modes</div>
+    </div>
+    <div class="nd-stat">
+      <div class="nd-stat-val">HU</div>
+      <div class="nd-stat-lbl">Hounsfield thresholding</div>
+    </div>
+  </div>
+</div>
+
+<div class="nd-scan-section">
+  <div class="nd-section-tag">Scanner</div>
+  <div class="nd-section-title">Drag-and-drop NCCT analysis</div>
+  <div class="nd-section-sub">Supports JPG, PNG, and DICOM (.dcm) — max 20 MB per scan</div>
+
+  <div class="nd-upload-area">
+    <div class="nd-upload-icon"><i class="ti ti-file-upload" aria-hidden="true"></i></div>
+    <p><strong>Drop your brain CT here</strong> or click to browse</p>
+    <div class="nd-formats">
+      <span class="nd-fmt">.dcm</span>
+      <span class="nd-fmt">.jpg</span>
+      <span class="nd-fmt">.png</span>
+    </div>
+  </div>
+
+  <div class="nd-results-grid">
+    <div class="nd-result-card">
+      <div class="nd-result-card-head">
+        <i class="ti ti-scan" aria-hidden="true" style="font-size:14px;"></i>Original scan
+      </div>
+      <div class="nd-scan-placeholder" style="background:#0a0f1a;">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <ellipse cx="50" cy="50" rx="42" ry="44" fill="#1a2030" stroke="#2a3a50" stroke-width="0.5"/>
+          <ellipse cx="50" cy="50" rx="34" ry="36" fill="#232d40"/>
+          <ellipse cx="38" cy="44" rx="8" ry="7" fill="#1e2840"/>
+          <ellipse cx="62" cy="44" rx="8" ry="7" fill="#1e2840"/>
+          <ellipse cx="50" cy="58" rx="5" ry="4" fill="#1e2840"/>
+        </svg>
+        <span class="nd-badge-score nd-badge-normal">Normal</span>
+      </div>
+    </div>
+    <div class="nd-result-card">
+      <div class="nd-result-card-head">
+        <i class="ti ti-mask" aria-hidden="true" style="font-size:14px;"></i>Segmentation mask
+      </div>
+      <div class="nd-scan-placeholder" style="background:#000;">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <ellipse cx="50" cy="50" rx="42" ry="44" fill="#111" stroke="#222" stroke-width="0.5"/>
+          <ellipse cx="36" cy="42" rx="6" ry="5" fill="#fff"/>
+          <ellipse cx="57" cy="38" rx="4" ry="3.5" fill="#ddd"/>
+        </svg>
+        <span class="nd-badge-score nd-badge-anomaly">Anomaly · 8.4%</span>
+      </div>
+    </div>
+    <div class="nd-result-card">
+      <div class="nd-result-card-head">
+        <i class="ti ti-layers-intersect" aria-hidden="true" style="font-size:14px;"></i>AI overlay
+      </div>
+      <div class="nd-scan-placeholder" style="background:#0a0f1a;">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <ellipse cx="50" cy="50" rx="42" ry="44" fill="#1a2030" stroke="#2a3a50" stroke-width="0.5"/>
+          <ellipse cx="50" cy="50" rx="34" ry="36" fill="#232d40"/>
+          <ellipse cx="36" cy="42" rx="6" ry="5" fill="rgba(220,50,50,0.55)" stroke="#E24B4A" stroke-width="1"/>
+          <ellipse cx="57" cy="38" rx="4" ry="3.5" fill="rgba(220,50,50,0.55)" stroke="#E24B4A" stroke-width="1"/>
+        </svg>
+        <span class="nd-badge-score nd-badge-anomaly">Confidence · 91%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nd-features">
+  <div class="nd-section-tag">Capabilities</div>
+  <div class="nd-section-title">End-to-end neuroimaging pipeline</div>
+  <div class="nd-feat-grid">
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#E6F1FB; color:#185FA5;"><i class="ti ti-search" aria-hidden="true"></i></div>
+      <h3>Hypodense detection</h3>
+      <p>Identifies areas darker than surrounding parenchyma — ischemic stroke, oedema, and infarction — using HU thresholding or trained U-Net.</p>
+    </div>
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#EAF3DE; color:#3B6D11;"><i class="ti ti-brain" aria-hidden="true"></i></div>
+      <h3>Segmentation mask</h3>
+      <p>Binary lesion map showing exact hypodense regions overlaid on the original scan with semi-transparent red fill and orange contour outlines.</p>
+    </div>
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#FAEEDA; color:#854F0B;"><i class="ti ti-report-analytics" aria-hidden="true"></i></div>
+      <h3>Explainable AI summary</h3>
+      <p>Plain-language clinical interpretation of findings, lesion load percentage, and a colour-coded confidence badge for rapid assessment.</p>
+    </div>
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#FBEAF0; color:#993556;"><i class="ti ti-file-medical" aria-hidden="true"></i></div>
+      <h3>Radiology-style report</h3>
+      <p>Auto-generated text reports via <code style="font-size:11px;">report_generator.py</code> with lesion load metrics and volumetric analysis.</p>
+    </div>
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#E1F5EE; color:#0F6E56;"><i class="ti ti-database" aria-hidden="true"></i></div>
+      <h3>Multi-format support</h3>
+      <p>Accepts DICOM (.dcm) with Hounsfield unit metadata for maximum accuracy, or standard JPG/PNG using adaptive intensity thresholding.</p>
+    </div>
+    <div class="nd-feat-card">
+      <div class="nd-feat-icon" style="background:#EEEDFE; color:#534AB7;"><i class="ti ti-download" aria-hidden="true"></i></div>
+      <h3>Export overlay</h3>
+      <p>Download the AI-annotated overlay directly. UUID-prefixed filenames prevent collision during concurrent uploads in the Django backend.</p>
+    </div>
+  </div>
+</div>
+
+<div class="nd-pipeline">
+  <div class="nd-section-tag">How it works</div>
+  <div class="nd-section-title">Dual-mode inference pipeline</div>
+  <div class="nd-section-sub" style="margin-bottom:0;">Physics-based segmentation — no pre-trained weights required for meaningful results</div>
+  <div class="nd-pipe-steps">
+    <div class="nd-pipe-step">
+      <div class="nd-pipe-num">1</div>
+      <h4>Upload scan</h4>
+      <p>DICOM, JPG, or PNG up to 20 MB</p>
+    </div>
+    <div class="nd-pipe-arrow"><i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+    <div class="nd-pipe-step">
+      <div class="nd-pipe-num">2</div>
+      <h4>Preprocess</h4>
+      <p>CLAHE enhancement & skull stripping</p>
+    </div>
+    <div class="nd-pipe-arrow"><i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+    <div class="nd-pipe-step">
+      <div class="nd-pipe-num">3</div>
+      <h4>Segment</h4>
+      <p>HU 15–35 band or U-Net inference</p>
+    </div>
+    <div class="nd-pipe-arrow"><i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+    <div class="nd-pipe-step">
+      <div class="nd-pipe-num">4</div>
+      <h4>Annotate</h4>
+      <p>Overlay, score & XAI summary</p>
+    </div>
+    <div class="nd-pipe-arrow"><i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+    <div class="nd-pipe-step">
+      <div class="nd-pipe-num">5</div>
+      <h4>Export</h4>
+      <p>Download annotated image or report</p>
+    </div>
+  </div>
+</div>
+
+<div class="nd-tech">
+  <div class="nd-section-tag">Tech stack</div>
+  <div class="nd-tech-chips">
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#185FA5;"></span>Django 6.0</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#E24B4A;"></span>PyTorch 2.x</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#3B6D11;"></span>OpenCV</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#854F0B;"></span>NumPy</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#534AB7;"></span>pydicom</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#0F6E56;"></span>nibabel</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#993556;"></span>SimpleITK</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#BA7517;"></span>scikit-image</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#888780;"></span>Python 3.12+</span>
+    <span class="nd-chip"><span class="nd-chip-dot" style="background:#185FA5;"></span>Docker</span>
+  </div>
+</div>
+
+<div class="nd-disclaimer">
+  <i class="ti ti-alert-triangle" aria-hidden="true" style="color:#854F0B; font-size:18px; flex-shrink:0;"></i>
+  <p><strong>Research use only.</strong> NeuroDetect AI is not a certified medical device and must not be used for clinical diagnosis without validation by a qualified radiologist. This tool does not contain patient medical images.</p>
+</div>
+
+<div class="nd-footer">
+  <div class="nd-footer-l">NeuroDetect AI · Ashwani Pandey · 2025–2026 · MIT License</div>
+  <div class="nd-footer-r">Academic & Research Purposes Only</div>
+</div>

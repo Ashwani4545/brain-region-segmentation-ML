@@ -1,0 +1,354 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.c-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 60px;
+  background: var(--color-background-primary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-logo { display: flex; align-items: center; gap: 10px; }
+.c-logo-mark {
+  width: 36px; height: 36px; border-radius: 8px; background: #0A3D62;
+  display: flex; align-items: center; justify-content: center;
+}
+.c-logo-text { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.c-logo-reg { font-size: 10px; color: var(--color-text-secondary); vertical-align: super; }
+.c-nav { display: flex; align-items: center; gap: 20px; }
+.c-nav a { font-size: 13px; color: var(--color-text-secondary); text-decoration: none; }
+.c-nav-divider { width: 0.5px; height: 18px; background: var(--color-border-tertiary); }
+.c-btn-demo {
+  border: 0.5px solid #0A3D62; color: #0A3D62; background: transparent;
+  border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+}
+.c-btn-sales {
+  background: #0A3D62; color: #fff; border: none;
+  border-radius: 6px; padding: 7px 16px; font-size: 13px; cursor: pointer;
+}
+
+.c-topbar {
+  background: #0A3D62; color: #fff;
+  padding: 8px 32px; text-align: center; font-size: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+}
+.c-topbar-pill {
+  background: rgba(255,255,255,0.15); border-radius: 20px;
+  padding: 2px 10px; font-size: 11px;
+}
+
+.c-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-hero-left {
+  padding: 52px 40px 48px 40px;
+  border-right: 0.5px solid var(--color-border-tertiary);
+}
+.c-hero-eyebrow {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+}
+.c-fda-badge {
+  background: #EAF3DE; border: 0.5px solid #C0DD97;
+  border-radius: 4px; padding: 3px 8px;
+  font-size: 11px; font-weight: 500; color: #27500A;
+  display: flex; align-items: center; gap: 4px;
+}
+.c-ce-badge {
+  background: #E6F1FB; border: 0.5px solid #B5D4F4;
+  border-radius: 4px; padding: 3px 8px;
+  font-size: 11px; font-weight: 500; color: #0C447C;
+}
+.c-hero-left h1 {
+  font-size: 28px; font-weight: 500; line-height: 1.25;
+  color: var(--color-text-primary); margin-bottom: 14px;
+}
+.c-hero-left h1 em { font-style: normal; color: #0A3D62; }
+.c-hero-left p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 28px; }
+.c-cta-row { display: flex; gap: 10px; align-items: center; margin-bottom: 32px; }
+.c-btn-primary-lg {
+  background: #0A3D62; color: #fff; border: none;
+  border-radius: 8px; padding: 12px 22px; font-size: 14px; cursor: pointer;
+}
+.c-btn-ghost-lg {
+  background: transparent; color: var(--color-text-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 8px; padding: 12px 22px; font-size: 14px; cursor: pointer;
+}
+.c-trust-row { display: flex; gap: 16px; align-items: center; }
+.c-trust-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-secondary); }
+
+.c-hero-right {
+  background: var(--color-background-secondary);
+  padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.c-demo-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 4px; }
+.c-scan-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; overflow: hidden;
+}
+.c-scan-header {
+  padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.c-scan-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.c-scan-meta { font-size: 11px; color: var(--color-text-secondary); }
+.c-scan-body { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.c-scan-col { padding: 10px; border-right: 0.5px solid var(--color-border-tertiary); text-align: center; }
+.c-scan-col:last-child { border-right: none; }
+.c-scan-col-lbl { font-size: 10px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.c-scan-img { border-radius: 4px; overflow: hidden; }
+
+.c-report-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; padding: 14px 16px;
+}
+.c-report-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.c-report-row:last-child { margin-bottom: 0; }
+.c-report-key { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 5px; }
+.c-report-val { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.c-report-val.danger { color: #A32D2D; }
+.c-report-val.success { color: #27500A; }
+.c-progress-bar { height: 4px; border-radius: 2px; background: var(--color-background-secondary); margin-top: 4px; }
+.c-progress-fill { height: 100%; border-radius: 2px; background: #E24B4A; }
+
+.c-social-proof {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-sp-item {
+  padding: 20px 16px; text-align: center;
+  border-right: 0.5px solid var(--color-border-tertiary);
+}
+.c-sp-item:last-child { border-right: none; }
+.c-sp-num { font-size: 22px; font-weight: 500; color: #0A3D62; }
+.c-sp-lbl { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.c-clients {
+  padding: 18px 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+}
+.c-clients-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 12px; text-align: center; }
+.c-clients-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.c-client-pill {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 6px; padding: 6px 16px;
+  font-size: 12px; font-weight: 500; color: var(--color-text-secondary);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.c-features {
+  padding: 52px 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-section-tag { font-size: 11px; font-weight: 500; color: #0A3D62; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 6px; }
+.c-section-h { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.c-section-sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 36px; }
+.c-feat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.c-feat-row { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; }
+.c-feat-icon { width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.c-feat-row h3 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.c-feat-row p { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.c-compliance {
+  background: var(--color-background-secondary);
+  padding: 40px 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-comp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 28px; }
+.c-comp-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; padding: 18px 14px; text-align: center;
+}
+.c-comp-icon { font-size: 22px; margin-bottom: 8px; }
+.c-comp-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.c-comp-status { font-size: 11px; color: #27500A; background: #EAF3DE; border-radius: 4px; padding: 2px 8px; display: inline-block; }
+
+.c-pricing {
+  padding: 52px 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 36px; }
+.c-price-card {
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; padding: 24px 20px;
+  background: var(--color-background-primary);
+}
+.c-price-card.featured { border: 2px solid #0A3D62; }
+.c-price-plan { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.c-price-amt { font-size: 28px; font-weight: 500; color: var(--color-text-primary); }
+.c-price-amt span { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); }
+.c-price-desc { font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 20px; line-height: 1.5; }
+.c-price-divider { height: 0.5px; background: var(--color-border-tertiary); margin-bottom: 16px; }
+.c-price-feature { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
+.c-price-feature i { color: #27500A; font-size: 14px; }
+.c-price-btn {
+  width: 100%; margin-top: 20px; padding: 10px;
+  border-radius: 7px; font-size: 13px; cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary); background: transparent;
+  color: var(--color-text-primary);
+}
+.c-price-btn.primary { background: #0A3D62; color: #fff; border: none; }
+.c-popular-badge {
+  background: #E6F1FB; color: #0C447C;
+  font-size: 11px; padding: 3px 10px; border-radius: 4px;
+  display: inline-block; margin-bottom: 10px;
+}
+
+.c-testimonial {
+  background: var(--color-background-secondary);
+  padding: 48px 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 28px; }
+.c-testi-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; padding: 20px;
+}
+.c-testi-quote { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; margin-bottom: 16px; font-family: var(--font-serif); }
+.c-testi-author { display: flex; align-items: center; gap: 10px; }
+.c-testi-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.c-testi-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.c-testi-role { font-size: 11px; color: var(--color-text-secondary); }
+.c-stars { color: #BA7517; font-size: 11px; margin-bottom: 10px; }
+
+.c-contact {
+  padding: 48px 40px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.c-contact-left h2 { font-size: 20px; font-weight: 500; margin-bottom: 10px; color: var(--color-text-primary); }
+.c-contact-left p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 20px; }
+.c-contact-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--color-text-secondary); }
+.c-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.c-form-field { display: flex; flex-direction: column; gap: 5px; }
+.c-form-label { font-size: 12px; color: var(--color-text-secondary); }
+.c-form-field input, .c-form-field select {
+  border: 0.5px solid var(--color-border-secondary); border-radius: 6px;
+  padding: 8px 10px; font-size: 13px; background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+.c-form-submit {
+  width: 100%; background: #0A3D62; color: #fff; border: none;
+  border-radius: 7px; padding: 11px; font-size: 14px; cursor: pointer; margin-top: 8px;
+}
+
+.c-footer {
+  padding: 20px 40px;
+  background: var(--color-background-secondary);
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 0.5px solid var(--color-border-tertiary);
+}
+.c-footer-l { font-size: 12px; color: var(--color-text-secondary); }
+.c-footer-links { display: flex; gap: 16px; }
+.c-footer-links a { font-size: 12px; color: var(--color-text-secondary); text-decoration: none; }
+.c-footer-cert { display: flex; gap: 8px; }
+.c-cert { border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 3px 8px; font-size: 11px; color: var(--color-text-secondary); }
+</style>
+
+<h2 class="sr-only">NeuroDetect AI — commercial medical-grade sales website for hospitals and radiology departments</h2>
+
+<div class="c-topbar">
+  <span>Now CE-marked for use in EU clinical environments</span>
+  <span class="c-topbar-pill">New: DICOM PACS integration available</span>
+  <span>Contact sales: +1 800 NEUROAI</span>
+</div>
+
+<div class="c-header">
+  <div class="c-logo">
+    <div class="c-logo-mark">
+      <i class="ti ti-brain" aria-hidden="true" style="color:#7BB8F0; font-size:18px;"></i>
+    </div>
+    <div>
+      <span class="c-logo-text">NeuroDetect AI<span class="c-logo-reg">®</span></span><br>
+      <span style="font-size:11px; color:var(--color-text-secondary);">Clinical Neuroimaging Intelligence</span>
+    </div>
+  </div>
+  <nav class="c-nav">
+    <a href="#">Solutions</a>
+    <a href="#">Clinical evidence</a>
+    <a href="#">Integrations</a>
+    <a href="#">Pricing</a>
+    <a href="#">Support</a>
+    <div class="c-nav-divider"></div>
+    <button class="c-btn-demo">Request demo</button>
+    <button class="c-btn-sales">Talk to sales</button>
+  </nav>
+</div>
+
+<div class="c-hero">
+  <div class="c-hero-left">
+    <div class="c-hero-eyebrow">
+      <span class="c-fda-badge"><i class="ti ti-check" aria-hidden="true" style="font-size:12px;"></i>510(k) Cleared</span>
+      <span class="c-ce-badge">CE Mark · Class IIa</span>
+    </div>
+    <h1>AI-powered stroke detection<br>for <em>clinical radiology</em> teams</h1>
+    <p>NeuroDetect AI automatically identifies and segments hypodense regions in brain NCCT scans — delivering radiologist-ready overlays, lesion load scores, and structured reports in under 60 seconds. Proven in 120+ hospital deployments.</p>
+    <div class="c-cta-row">
+      <button class="c-btn-primary-lg">Schedule a clinical demo</button>
+      <button class="c-btn-ghost-lg">View clinical evidence</button>
+    </div>
+    <div class="c-trust-row">
+      <span class="c-trust-item"><i class="ti ti-shield-check" aria-hidden="true" style="font-size:14px; color:#27500A;"></i>HIPAA compliant</span>
+      <span class="c-trust-item"><i class="ti ti-lock" aria-hidden="true" style="font-size:14px; color:#0C447C;"></i>SOC 2 Type II</span>
+      <span class="c-trust-item"><i class="ti ti-certificate" aria-hidden="true" style="font-size:14px; color:#854F0B;"></i>ISO 13485</span>
+    </div>
+  </div>
+
+  <div class="c-hero-right">
+    <div class="c-demo-label"><i class="ti ti-live-view" aria-hidden="true" style="font-size:13px; vertical-align:-1px;"></i> Live result preview</div>
+    <div class="c-scan-card">
+      <div class="c-scan-header">
+        <span class="c-scan-title">Patient: [ANONYMISED] · Study: NCCT Brain · Slice 14/22</span>
+        <span class="c-scan-meta">Processed in 0.8s</span>
+      </div>
+      <div class="c-scan-body">
+        <div class="c-scan-col">
+          <div class="c-scan-col-lbl">Original scan</div>
+          <div class="c-scan-img">
+            <svg width="100%" viewBox="0 0 80 80">
+              <rect width="80" height="80" fill="#0a0f1a"/>
+              <ellipse cx="40" cy="40" rx="34" ry="36" fill="#1a2030" stroke="#2a3a50" stroke-width="0.5"/>
+              <ellipse cx="40" cy="40" rx="26" ry="28" fill="#222c3c"/>
+              <ellipse cx="30" cy="35" rx="7" ry="6" fill="#1c2535"/>
+              <ellipse cx="50" cy="35" rx="7" ry="6" fill="#1c2535"/>
+              <ellipse cx="40" cy="50" rx="5" ry="4" fill="#1c2535"/>
+            </svg>
+          </div>
+        </div>
+        <div class="c-scan-col">
+          <div class="c-scan-col-lbl">Segmentation mask</div>
+          <div class="c-scan-img">
+            <svg width="100%" viewBox="0 0 80 80">
+              <rect width="80" height="80" fill="#000"/>
+              <ellipse cx="40" cy="40" rx="34" ry="36" fill="#0d0d0d" stroke="#1a1a1a" stroke-width="0.5"/>
+              <ellipse cx="28" cy="33" rx="5" ry="4.5" fill="#fff"/>
+              <ellipse cx="46" cy="30" rx="3.5" ry="3" fill="#ccc"/>
+            </svg>
+          </div>
+        </div>
+        <div class="c-scan-col">
+          <div class="c-scan-col-lbl">AI overlay</div>
+          <div class="c-scan-img">
+            <svg width="100%" viewBox="0 0 80 80">
+              <rect width="80" height="80" fill="#0a0f1a"/>
+              <ellipse cx="40" cy="40" rx="34" ry="36" fill="#1a2030" stroke="#2a3a50" stroke-width="0.5"/>
+              <ellipse cx="40" cy="40" rx="26" ry="28" fill="#222c3c"/>
+              <ellipse cx="28" cy="33" rx="5" ry="4.5" fill="rgba(220,50,50,0.6)" stroke="#E24B4A" stroke-width="1.2"/>
+              <ellipse cx="46" cy="30" rx="3.5" ry="3" fill="rgba(220,50,50,0.6)" stroke="#E24B4A" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-report-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:12px; font-weight:500; color:var(--color-text-primary);
