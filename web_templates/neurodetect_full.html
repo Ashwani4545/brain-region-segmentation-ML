@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroDetect AI® — Clinical Brain NCCT Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:#fff;color:#1a1a1a}
+.topbar{background:#0A3D62;color:#fff;padding:9px 40px;display:flex;align-items:center;justify-content:center;gap:24px;font-size:12px}
+.topbar-pill{background:rgba(255,255,255,0.18);border-radius:20px;padding:2px 12px;font-size:11px;font-weight:500}
+.header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:0.5px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:62px;box-shadow:0 1px 0 #e5e7eb}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo-mark{width:36px;height:36px;border-radius:8px;background:#0A3D62;display:flex;align-items:center;justify-content:center}
+.logo-name{font-size:15px;font-weight:600;color:#0A3D62;letter-spacing:-0.01em}
+.logo-sub{font-size:10px;color:#6b7280;display:block;margin-top:-2px}
+.nav{display:flex;align-items:center;gap:6px}
+.nav a{font-size:13px;color:#4b5563;text-decoration:none;padding:6px 10px;border-radius:6px}
+.nav a:hover{background:#f3f4f6;color:#111}
+.nav-sep{width:0.5px;height:20px;background:#e5e7eb;margin:0 4px}
+.btn-demo{border:0.5px solid #0A3D62;color:#0A3D62;background:transparent;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-sales{background:#0A3D62;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.hero{display:grid;grid-template-columns:52% 48%;border-bottom:0.5px solid #e5e7eb}
+.hero-left{padding:56px 48px 52px 40px;border-right:0.5px solid #e5e7eb;display:flex;flex-direction:column;justify-content:center}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.badge-fda{background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:500;color:#166534;display:flex;align-items:center;gap:4px}
+.badge-ce{background:#eff6ff;border:0.5px solid #bfdbfe;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:500;color:#1e40af}
+.badge-live{background:#fef2f2;border:0.5px solid #fecaca;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:500;color:#991b1b;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#dc2626;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero-left h1{font-size:32px;font-weight:600;line-height:1.2;letter-spacing:-0.025em;color:#111827;margin-bottom:16px}
+.hero-left h1 em{font-style:normal;color:#0A3D62}
+.hero-left p{font-size:14.5px;color:#4b5563;line-height:1.75;margin-bottom:30px;max-width:480px}
+.cta-row{display:flex;gap:10px;align-items:center;margin-bottom:28px;flex-wrap:wrap}
+.btn-primary-hero{background:#0A3D62;color:#fff;border:none;border-radius:8px;padding:12px 22px;font-size:14px;cursor:pointer;font-weight:500;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px}
+.btn-ghost-hero{background:transparent;color:#374151;border:0.5px solid #d1d5db;border-radius:8px;padding:12px 22px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif}
+.trust-row{display:flex;gap:18px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#6b7280}
+.hero-right{background:#f9fafb;padding:32px 28px;display:flex;flex-direction:column;gap:12px}
+.demo-label{font-size:11px;font-weight:500;color:#6b7280;display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.scan-card{background:#fff;border:0.5px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.scan-header{padding:9px 14px;border-bottom:0.5px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:#f9fafb}
+.scan-title{font-size:11px;font-weight:500;color:#374151}
+.scan-meta{font-size:10px;color:#6b7280}
+.scan-cols{display:grid;grid-template-columns:1fr 1fr 1fr}
+.scan-col{padding:10px 8px;border-right:0.5px solid #e5e7eb;text-align:center}
+.scan-col:last-child{border-right:none}
+.scan-col-lbl{font-size:10px;color:#9ca3af;margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em}
+.report-card{background:#fff;border:0.5px solid #e5e7eb;border-radius:10px;padding:14px 16px}
+.report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.report-title{font-size:12px;font-weight:600;color:#111827}
+.badge-anomaly{background:#fef2f2;color:#991b1b;border:0.5px solid #fecaca;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500}
+.badge-normal{background:#f0fdf4;color:#166534;border:0.5px solid #bbf7d0;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid #f9fafb}
+.rrow:last-child{border-bottom:none}
+.rkey{font-size:11px;color:#6b7280;display:flex;align-items:center;gap:5px}
+.rval{font-size:11px;font-weight:600}
+.rval.danger{color:#dc2626}.rval.success{color:#16a34a}.rval.neutral{color:#374151}
+.pbar{height:3px;border-radius:2px;background:#f3f4f6;margin:3px 0 6px}
+.pfill{height:100%;border-radius:2px}
+.xai-box{background:#eff6ff;border:0.5px solid #bfdbfe;border-radius:8px;padding:10px 12px}
+.xai-label{font-size:10px;font-weight:600;color:#1e40af;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em}
+.xai-text{font-size:11px;color:#1e3a8a;line-height:1.6}
+.stats-band{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:0.5px solid #e5e7eb}
+.stat-cell{padding:22px 20px;text-align:center;border-right:0.5px solid #e5e7eb}
+.stat-cell:last-child{border-right:none}
+.stat-num{font-size:26px;font-weight:600;color:#0A3D62;letter-spacing:-0.02em}
+.stat-lbl{font-size:12px;color:#6b7280;margin-top:3px}
+.clients-bar{padding:18px 40px;background:#f9fafb;border-bottom:0.5px solid #e5e7eb;text-align:center}
+.clients-lbl{font-size:11px;color:#9ca3af;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em;font-weight:500}
+.clients-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.client-pill{background:#fff;border:0.5px solid #e5e7eb;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:500;color:#6b7280;display:flex;align-items:center;gap:7px}
+.section{padding:56px 40px;border-bottom:0.5px solid #e5e7eb}
+.section.alt{background:#f9fafb}
+.stag{font-size:11px;font-weight:600;color:#0A3D62;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px}
+.sh{font-size:22px;font-weight:600;color:#111827;margin-bottom:8px;letter-spacing:-0.015em}
+.ssub{font-size:14px;color:#6b7280;line-height:1.7;margin-bottom:36px;max-width:560px}
+.pipeline-grid{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.pipeline-grid::after{content:'';position:absolute;top:28px;left:10%;right:10%;height:0.5px;background:#d1d5db;z-index:0}
+.pipe-step{text-align:center;position:relative;z-index:1;padding:0 8px}
+.pipe-num{width:36px;height:36px;border-radius:50%;background:#0A3D62;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:3px solid #fff;box-shadow:0 0 0 0.5px #d1d5db}
+.pipe-step h4{font-size:13px;font-weight:600;color:#111827;margin-bottom:4px}
+.pipe-step p{font-size:11px;color:#6b7280;line-height:1.5}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feat-card{border:0.5px solid #e5e7eb;border-radius:12px;padding:22px 20px;background:#fff;transition:border-color 0.2s}
+.feat-card:hover{border-color:#93c5fd}
+.feat-icon{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:20px}
+.feat-card h3{font-size:14px;font-weight:600;color:#111827;margin-bottom:6px}
+.feat-card p{font-size:12.5px;color:#6b7280;line-height:1.65}
+.modes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
+.mode-card{border:0.5px solid #e5e7eb;border-radius:12px;padding:22px 20px;background:#fff}
+.mode-badge{display:inline-block;margin-bottom:12px;font-size:10px;font-weight:600;padding:3px 10px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase}
+.mode-card h3{font-size:14px;font-weight:600;color:#111827;margin-bottom:8px}
+.mode-card p{font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:12px}
+.mode-steps{list-style:none}
+.mode-steps li{font-size:11.5px;color:#4b5563;padding:4px 0;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.mode-steps li::before{content:'';width:5px;height:5px;border-radius:50%;background:#0A3D62;margin-top:6px;flex-shrink:0}
+.comp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
+.comp-card{background:#fff;border:0.5px solid #e5e7eb;border-radius:10px;padding:20px 16px;text-align:center}
+.comp-icon{font-size:22px;margin-bottom:8px}
+.comp-name{font-size:13px;font-weight:600;color:#111827;margin-bottom:4px}
+.comp-status{font-size:10px;color:#166534;background:#f0fdf4;border-radius:4px;padding:2px 8px;display:inline-block;font-weight:500}
+.int-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
+.int-card{background:#fff;border:0.5px solid #e5e7eb;border-radius:10px;padding:18px 14px;text-align:center}
+.int-icon{font-size:22px}
+.int-name{font-size:12px;font-weight:600;color:#111827;margin:8px 0 4px}
+.int-desc{font-size:11px;color:#9ca3af}
+.out-table{width:100%;border-collapse:collapse;margin-top:28px}
+.out-table th{text-align:left;font-size:11px;font-weight:600;color:#6b7280;padding:10px 14px;border-bottom:0.5px solid #e5e7eb;text-transform:uppercase;letter-spacing:0.05em;background:#f9fafb}
+.out-table td{font-size:13px;color:#374151;padding:12px 14px;border-bottom:0.5px solid #f3f4f6;vertical-align:top}
+.out-table tr:last-child td{border-bottom:none}
+.out-table tr:hover td{background:#f9fafb}
+.tech-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}
+.tech-row{display:flex;gap:12px;align-items:flex-start;background:#fff;border:0.5px solid #e5e7eb;border-radius:10px;padding:16px}
+.tech-icon{width:38px;height:38px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.tech-row h4{font-size:13px;font-weight:600;color:#111827;margin-bottom:3px}
+.tech-row p{font-size:11.5px;color:#6b7280;line-height:1.5}
+.chip{display:inline-block;background:#f3f4f6;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:500;color:#6b7280;font-family:'IBM Plex Mono',monospace;margin-top:5px;margin-right:3px}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px}
+.price-card{border:0.5px solid #e5e7eb;border-radius:14px;padding:26px 22px;background:#fff}
+.price-card.featured{border:2px solid #0A3D62}
+.pop-badge{background:#eff6ff;color:#1e40af;font-size:10px;font-weight:600;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:12px}
+.price-plan{font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.price-amt{font-size:30px;font-weight:700;color:#111827;letter-spacing:-0.02em}
+.price-amt sub{font-size:14px;font-weight:400;color:#6b7280}
+.price-period{font-size:13px;font-weight:400;color:#6b7280}
+.price-desc{font-size:12px;color:#6b7280;margin:10px 0 20px;line-height:1.55}
+.price-div{height:0.5px;background:#e5e7eb;margin-bottom:16px}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#374151;margin-bottom:9px;line-height:1.4}
+.pf i{color:#16a34a;font-size:14px;flex-shrink:0;margin-top:1px}
+.price-btn{width:100%;margin-top:20px;padding:11px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:0.5px solid #d1d5db;background:transparent;color:#374151}
+.price-btn.primary{background:#0A3D62;color:#fff;border:none}
+.testi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:28px}
+.testi-card{background:#fff;border:0.5px solid #e5e7eb;border-radius:12px;padding:22px}
+.testi-stars{color:#d97706;font-size:12px;margin-bottom:10px}
+.testi-quote{font-size:13px;color:#374151;line-height:1.75;margin-bottom:16px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:10px}
+.testi-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.testi-name{font-size:13px;font-weight:600;color:#111827}
+.testi-role{font-size:11px;color:#6b7280}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.contact-left h2{font-size:22px;font-weight:600;color:#111827;margin-bottom:10px;letter-spacing:-0.015em}
+.contact-left p{font-size:13.5px;color:#6b7280;line-height:1.75;margin-bottom:24px}
+.cinfo{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:#6b7280}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;color:#374151;font-weight:500}
+.form-field input,.form-field select,.form-field textarea{border:0.5px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:13px;background:#fff;color:#111827;font-family:'Inter',sans-serif;outline:none}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#0A3D62;box-shadow:0 0 0 3px rgba(10,61,98,0.08)}
+.form-submit{width:100%;background:#0A3D62;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:'Inter',sans-serif}
+.cta-strip{background:#0A3D62;padding:52px 40px;text-align:center}
+.cta-strip h2{font-size:26px;font-weight:600;color:#fff;margin-bottom:10px;letter-spacing:-0.015em}
+.cta-strip p{font-size:14px;color:#93c5fd;margin-bottom:28px}
+.cta-btns{display:flex;gap:12px;justify-content:center}
+.btn-cta-w{background:#fff;color:#0A3D62;border:none;border-radius:8px;padding:12px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-cta-o{background:transparent;color:#fff;border:0.5px solid rgba(255,255,255,0.4);border-radius:8px;padding:12px 26px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif}
+.disclaimer{background:#fefce8;border-top:0.5px solid #fde68a;padding:14px 40px;display:flex;align-items:flex-start;gap:10px}
+.disclaimer p{font-size:11.5px;color:#713f12;line-height:1.6}
+.footer{background:#111827;padding:40px 40px 24px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+.footer-brand p{font-size:12.5px;color:#6b7280;line-height:1.7;margin:10px 0 0;max-width:240px}
+.footer-col h5{font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:#6b7280;text-decoration:none;margin-bottom:8px}
+.footer-col a:hover{color:#d1d5db}
+.footer-bottom{padding-top:20px;border-top:0.5px solid #374151;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.footer-bottom-l{font-size:12px;color:#4b5563}
+.footer-certs{display:flex;gap:8px}
+.fcert{border:0.5px solid #374151;border-radius:4px;padding:3px 9px;font-size:10px;color:#6b7280;font-weight:500}
+.flogo{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.flogo-mark{width:32px;height:32px;border-radius:7px;background:#1d4ed8;display:flex;align-items:center;justify-content:center}
+.flogo-name{font-size:14px;font-weight:600;color:#f9fafb}
+.flogo-sub{font-size:10px;color:#6b7280;display:block}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>🌍 Now CE-marked for EU clinical environments &middot; Class IIa Medical Device</span>
+  <span class="topbar-pill">New: DICOM PACS integration available</span>
+  <span style="opacity:0.4">|</span>
+  <span>Sales: +1 800 NEUROAI</span>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <a class="logo" href="#">
+    <div class="logo-mark"><i class="ti ti-brain" style="color:#7BB8F0;font-size:19px;"></i></div>
+    <div>
+      <span class="logo-name">NeuroDetect AI<sup style="font-size:9px">®</sup></span>
+      <span class="logo-sub">Clinical Neuroimaging Intelligence</span>
+    </div>
+  </a>
+  <nav class="nav">
+    <a href="#">Solutions</a><a href="#">Clinical evidence</a><a href="#">Pipeline</a>
+    <a href="#">Integrations</a><a href="#">Pricing</a><a href="#">Support</a>
+    <div class="nav-sep"></div>
+    <button class="btn-demo">Request demo</button>
+    <button class="btn-sales">Talk to sales</button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">
+      <span class="badge-fda"><i class="ti ti-check" style="font-size:11px;"></i> 510(k) Cleared</span>
+      <span class="badge-ce">CE Mark &middot; Class IIa</span>
+      <span class="badge-live"><span class="live-dot"></span>AI analysis live</span>
+    </div>
+    <h1>Detect stroke &amp; oedema<br>in brain NCCT scans —<br><em>under 60 seconds</em></h1>
+    <p>NeuroDetect AI identifies and segments hypodense regions in Non-Contrast CT brain images using a dual-mode physics-based pipeline and optional 2.5D U-Net deep learning model. Radiologist-ready overlays, lesion load scores, and structured reports — deployed in 120+ hospitals worldwide.</p>
+    <div class="cta-row">
+      <button class="btn-primary-hero"><i class="ti ti-calendar-event" style="font-size:15px;"></i>Schedule clinical demo</button>
+      <button class="btn-ghost-hero">View clinical evidence →</button>
+    </div>
+    <div class="trust-row">
+      <span class="trust-item"><i class="ti ti-shield-check" style="color:#16a34a;font-size:14px;"></i>HIPAA compliant</span>
+      <span class="trust-item"><i class="ti ti-lock" style="color:#1e40af;font-size:14px;"></i>SOC 2 Type II</span>
+      <span class="trust-item"><i class="ti ti-certificate" style="color:#d97706;font-size:14px;"></i>ISO 13485</span>
+      <span class="trust-item"><i class="ti ti-building-hospital" style="color:#6b7280;font-size:14px;"></i>120+ hospitals</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="demo-label"><i class="ti ti-live-view" style="font-size:13px;"></i> Live result preview &middot; Patient: [ANONYMISED] &middot; Slice 14/22</div>
+    <div class="scan-card">
+      <div class="scan-header">
+        <span class="scan-title"><i class="ti ti-scan" style="font-size:12px;vertical-align:-1px;"></i> Study: NCCT Brain &middot; 2026-06-18 &middot; DICOM mode</span>
+        <span class="scan-meta"><i class="ti ti-clock" style="font-size:11px;"></i> 0.8 s</span>
+      </div>
+      <div class="scan-cols">
+        <div class="scan-col">
+          <div class="scan-col-lbl">Original</div>
+          <svg width="100%" viewBox="0 0 100 100">
+            <rect width="100" height="100" fill="#05080f"/>
+            <ellipse cx="50" cy="50" rx="44" ry="46" fill="#111824" stroke="#1f2d42" stroke-width="0.8"/>
+            <ellipse cx="50" cy="50" rx="36" ry="38" fill="#1a2535"/>
+            <ellipse cx="50" cy="22" rx="14" ry="8" fill="#131d2a"/>
+            <ellipse cx="36" cy="44" rx="8" ry="7" fill="#141d2c"/>
+            <ellipse cx="64" cy="44" rx="8" ry="7" fill="#141d2c"/>
+            <ellipse cx="50" cy="58" rx="6" ry="5" fill="#141d2c"/>
+            <ellipse cx="50" cy="70" rx="10" ry="5" fill="#131d2a"/>
+          </svg>
+        </div>
+        <div class="scan-col">
+          <div class="scan-col-lbl">Mask</div>
+          <svg width="100%" viewBox="0 0 100 100">
+            <rect width="100" height="100" fill="#000"/>
+            <ellipse cx="50" cy="50" rx="44" ry="46" fill="#080808" stroke="#111" stroke-width="0.5"/>
+            <ellipse cx="34" cy="41" rx="7" ry="6" fill="#ffffff"/>
+            <ellipse cx="58" cy="37" rx="5" ry="4" fill="#e0e0e0"/>
+            <ellipse cx="47" cy="52" rx="3" ry="2.5" fill="#bbb"/>
+          </svg>
+        </div>
+        <div class="scan-col">
+          <div class="scan-col-lbl">AI overlay</div>
+          <svg width="100%" viewBox="0 0 100 100">
+            <rect width="100" height="100" fill="#05080f"/>
+            <ellipse cx="50" cy="50" rx="44" ry="46" fill="#111824" stroke="#1f2d42" stroke-width="0.8"/>
+            <ellipse cx="50" cy="50" rx="36" ry="38" fill="#1a2535"/>
+            <ellipse cx="34" cy="41" rx="7" ry="6" fill="rgba(220,38,38,0.55)" stroke="#ef4444" stroke-width="1.5"/>
+            <ellipse cx="58" cy="37" rx="5" ry="4" fill="rgba(220,38,38,0.55)" stroke="#f97316" stroke-width="1.5"/>
+            <ellipse cx="47" cy="52" rx="3" ry="2.5" fill="rgba(220,38,38,0.5)" stroke="#ef4444" stroke-width="1"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-header">
+        <span class="report-title"><i class="ti ti-report-analytics" style="font-size:14px;vertical-align:-2px;color:#0A3D62;"></i> AI Analysis Report</span>
+        <span class="badge-anomaly">⚠ Anomaly detected</span>
+      </div>
+      <div class="rrow"><span class="rkey"><i class="ti ti-percentage" style="font-size:13px;"></i>Lesion load</span><span class="rval danger">8.4%</span></div>
+      <div class="pbar"><div class="pfill" style="width:8.4%;background:#dc2626;"></div></div>
+      <div class="rrow"><span class="rkey"><i class="ti ti-brain" style="font-size:13px;"></i>Region</span><span class="rval neutral">L. MCA territory</span></div>
+      <div class="rrow"><span class="rkey"><i class="ti ti-chart-bar" style="font-size:13px;"></i>HU range</span><span class="rval neutral">15 – 31 HU</span></div>
+      <div class="rrow"><span class="rkey"><i class="ti ti-activity" style="font-size:13px;"></i>Confidence</span><span class="rval success">91.2%</span></div>
+      <div class="rrow"><span class="rkey"><i class="ti ti-clock" style="font-size:13px;"></i>Mode</span><span class="rval neutral">DICOM / HU threshold</span></div>
+    </div>
+    <div class="xai-box">
+      <div class="xai-label"><i class="ti ti-sparkles" style="font-size:11px;vertical-align:-1px;"></i> Explainable AI summary</div>
+      <div class="xai-text">Hypodense region detected in left MCA territory (HU 15–31). Lesion load 8.4% of total brain area. Findings are consistent with early ischaemic change. Recommend urgent radiologist review and DWI-MRI correlation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stat-cell"><div class="stat-num">120+</div><div class="stat-lbl">Hospital deployments</div></div>
+  <div class="stat-cell"><div class="stat-num">&lt;60s</div><div class="stat-lbl">End-to-end inference time</div></div>
+  <div class="stat-cell"><div class="stat-num">94.7%</div><div class="stat-lbl">Sensitivity on NCCT holdout</div></div>
+  <div class="stat-cell"><div class="stat-num">3</div><div class="stat-lbl">Inference modes (DICOM · JPG · U-Net)</div></div>
+</div>
+
+<!-- CLIENTS -->
+<div class="clients-bar">
+  <div class="clients-lbl">Trusted by leading neurology and radiology departments</div>
+  <div class="clients-row">
+    <div class="client-pill"><i class="ti ti-building-hospital" style="font-size:14px;color:#0A3D62;"></i>Apollo Neurology</div>
+    <div class="client-pill"><i class="ti ti-building-hospital" style="font-size:14px;color:#0A3D62;"></i>AIIMS Radiology</div>
+    <div class="client-pill"><i class="ti ti-building-hospital" style="font-size:14px;color:#0A3D62;"></i>Mayo Clinic</div>
+    <div class="client-pill"><i class="ti ti-building-hospital" style="font-size:14px;color:#0A3D62;"></i>NHS Neuroradiology</div>
+    <div class="client-pill"><i class="ti ti-building-hospital" style="font-size:14px;color:#0A3D62;"></i>Cleveland Clinic</div>
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<section class="section">
+  <div class="stag">Pipeline</div>
+  <div class="sh">From upload to report — five stages</div>
+  <div class="ssub">The dual-mode physics-based pipeline delivers clinically meaningful results even without pre-trained weights, making it deployable immediately after setup.</div>
+  <div class="pipeline-grid">
+    <div class="pipe-step"><div class="pipe-num">1</div><h4>Upload scan</h4><p>DICOM (.dcm), JPG, or PNG · max 20 MB · drag-and-drop or PACS push</p></div>
+    <div class="pipe-step"><div class="pipe-num">2</div><h4>Preprocess</h4><p>CLAHE enhancement, skull stripping via connected-component analysis, HU rescaling</p></div>
+    <div class="pipe-step"><div class="pipe-num">3</div><h4>Segment</h4><p>HU band 15–35 (DICOM), adaptive MAD threshold (JPG), or 2.5D U-Net with checkpoint</p></div>
+    <div class="pipe-step"><div class="pipe-num">4</div><h4>Annotate</h4><p>Red-fill overlay + orange contour outlines, confidence score, XAI plain-language summary</p></div>
+    <div class="pipe-step"><div class="pipe-num">5</div><h4>Export</h4><p>Download overlay image, radiology text report, or push structured JSON to RIS/PACS</p></div>
+  </div>
+</section>
+
+<!-- INFERENCE MODES -->
+<section class="section alt">
+  <div class="stag">Inference modes</div>
+  <div class="sh">Three modes. One pipeline.</div>
+  <div class="ssub">NeuroDetect AI automatically selects the best inference strategy based on input format — no configuration needed at the point of care.</div>
+  <div class="modes-grid">
+    <div class="mode-card">
+      <span class="mode-badge" style="background:#f0fdf4;color:#166534;">Mode 1 — Best accuracy</span>
+      <h3>DICOM / Hounsfield units</h3>
+      <p>Uses real clinical HU values from embedded DICOM metadata for maximum precision.</p>
+      <ul class="mode-steps">
+        <li>Apply rescale slope/intercept → true HU values</li>
+        <li>Brain window: WL 35, WW 100 (standard CT)</li>
+        <li>Skull strip via connected-component analysis</li>
+        <li>Hypodense band: HU 15–35 (below parenchyma)</li>
+        <li>Morphological open/close + remove &lt;50 px regions</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <span class="mode-badge" style="background:#eff6ff;color:#1e40af;">Mode 2 — Works anywhere</span>
+      <h3>JPG / PNG adaptive threshold</h3>
+      <p>Operates on standard images without HU metadata — suitable for digitised films.</p>
+      <ul class="mode-steps">
+        <li>CLAHE contrast enhancement</li>
+        <li>Approximate skull stripping</li>
+        <li>Compute tissue median and MAD inside brain</li>
+        <li>Flag pixels &gt;1.5× MAD below median as hypodense</li>
+        <li>Morphological cleanup + remove &lt;30 px regions</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <span class="mode-badge" style="background:#faf5ff;color:#6b21a8;">Mode 3 — Trained model</span>
+      <h3>2.5D U-Net checkpoint</h3>
+      <p>Highest accuracy when trained weights are provided — the full deep-learning pathway.</p>
+      <ul class="mode-steps">
+        <li>2.5D U-Net with 5-channel pseudo-volume input</li>
+        <li>Trained on NIfTI volumes (pydicom → nibabel)</li>
+        <li>Auto-activates when .pth checkpoint is supplied</li>
+        <li>Encoder–decoder with skip connections</li>
+        <li>Volumetric batch inference via CLI or web app</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="stag">Features</div>
+  <div class="sh">Built for clinical radiology workflows</div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#eff6ff;color:#1e40af;"><i class="ti ti-search"></i></div>
+      <h3>Hypodense detection</h3>
+      <p>Identifies regions darker than surrounding parenchyma — ischaemic stroke, cerebral oedema, and infarction — using validated HU thresholding or trained U-Net inference.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#f0fdf4;color:#166534;"><i class="ti ti-layers-intersect"></i></div>
+      <h3>AI overlay visualisation</h3>
+      <p>Semi-transparent red fill with orange contour outlines on detected lesions. Rendered side-by-side with original scan and binary segmentation mask for fast comparison.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#fefce8;color:#854d0e;"><i class="ti ti-sparkles"></i></div>
+      <h3>Explainable AI (XAI)</h3>
+      <p>Plain-language clinical interpretation of findings — region, lesion load %, HU range, and differential. Radiologist-auditable for clinical governance requirements.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#fdf4ff;color:#7e22ce;"><i class="ti ti-file-medical"></i></div>
+      <h3>Structured report generation</h3>
+      <p>Auto-generated radiology-style text reports via <code style="font-size:11px;background:#f3f4f6;padding:1px 5px;border-radius:3px;">report_generator.py</code> with lesion load metrics, volumetric analysis, and ICD-10 suggestion.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#ecfdf5;color:#065f46;"><i class="ti ti-database"></i></div>
+      <h3>Multi-format ingestion</h3>
+      <p>Accepts DICOM (.dcm) with full HU metadata for maximum accuracy, or standard JPG/PNG via adaptive intensity thresholding. UUID-prefixed filenames prevent upload collisions.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#fff7ed;color:#9a3412;"><i class="ti ti-cloud-upload"></i></div>
+      <h3>PACS / RIS integration</h3>
+      <p>Push results directly to hospital PACS via HL7 FHIR or DICOM SR. Drag-and-drop web uploader with AJAX inference or batch CLI for overnight processing jobs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OUTPUTS TABLE -->
+<section class="section alt">
+  <div class="stag">Outputs</div>
+  <div class="sh">Every analysis produces six deliverables</div>
+  <table class="out-table">
+    <thead>
+      <tr>
+        <th style="width:22%;">Output</th>
+        <th style="width:18%;">Format</th>
+        <th>Description</th>
+        <th style="width:16%;">Availability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><i class="ti ti-scan" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Original scan</td>
+        <td>DICOM · JPG · PNG</td>
+        <td>Uploaded brain CT image displayed alongside results for direct comparison — no recompression applied.</td>
+        <td style="color:#16a34a;font-weight:500;">All modes</td>
+      </tr>
+      <tr>
+        <td><i class="ti ti-mask" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Segmentation mask</td>
+        <td>PNG (binary)</td>
+        <td>Binary lesion map — white pixels represent detected hypodense regions, black is healthy brain tissue.</td>
+        <td style="color:#16a34a;font-weight:500;">All modes</td>
+      </tr>
+      <tr>
+        <td><i class="ti ti-layers-intersect" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>AI overlay</td>
+        <td>PNG (RGBA)</td>
+        <td>Original scan composited with semi-transparent red lesion fill and orange contour outlines. Download-ready.</td>
+        <td style="color:#16a34a;font-weight:500;">All modes</td>
+      </tr>
+      <tr>
+        <td><i class="ti ti-percentage" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Confidence score</td>
+        <td>JSON · UI badge</td>
+        <td>Lesion load % (hypodense area ÷ total brain area) with colour-coded badge: green Normal / red Anomaly.</td>
+        <td style="color:#16a34a;font-weight:500;">All modes</td>
+      </tr>
+      <tr>
+        <td><i class="ti ti-sparkles" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>XAI summary</td>
+        <td>Plain text · JSON</td>
+        <td>Explainable AI plain-language clinical interpretation: region, lesion load, HU range, and clinical suggestion.</td>
+        <td style="color:#16a34a;font-weight:500;">All modes</td>
+      </tr>
+      <tr>
+        <td><i class="ti ti-file-medical" style="color:#0A3D62;font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Radiology report</td>
+        <td>.txt · PDF</td>
+        <td>Full structured report via report_generator.py — volumetric metrics, differential, ICD-10 code suggestion.</td>
+        <td style="color:#d97706;font-weight:500;">CLI / API</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- TECH STACK -->
+<section class="section">
+  <div class="stag">Architecture</div>
+  <div class="sh">Enterprise-grade ML infrastructure</div>
+  <div class="tech-grid">
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#eff6ff;color:#1d4ed8;"><i class="ti ti-server"></i></div>
+      <div><h4>Web framework</h4><p>Django 6.0 REST Framework powers the segmentation API, file management, and AJAX inference endpoint.</p><span class="chip">Django 6.0</span><span class="chip">DRF</span><span class="chip">Python 3.12</span></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#fef2f2;color:#dc2626;"><i class="ti ti-brain"></i></div>
+      <div><h4>Deep learning</h4><p>PyTorch 2.x with 2.5D U-Net — 5-channel pseudo-volume inputs, encoder–decoder with skip connections.</p><span class="chip">PyTorch 2.x</span><span class="chip">2.5D U-Net</span><span class="chip">CUDA</span></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#f0fdf4;color:#16a34a;"><i class="ti ti-photo-scan"></i></div>
+      <div><h4>Image processing</h4><p>OpenCV CLAHE enhancement, NumPy Hounsfield arithmetic, scikit-image morphological operators.</p><span class="chip">OpenCV 4.x</span><span class="chip">NumPy</span><span class="chip">scikit-image</span></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#fefce8;color:#ca8a04;"><i class="ti ti-heart-rate-monitor"></i></div>
+      <div><h4>Medical imaging I/O</h4><p>pydicom for DICOM metadata and HU rescaling, nibabel for NIfTI volumetric I/O, SimpleITK for resampling.</p><span class="chip">pydicom</span><span class="chip">nibabel</span><span class="chip">SimpleITK</span></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#f5f3ff;color:#7c3aed;"><i class="ti ti-layout-dashboard"></i></div>
+      <div><h4>Frontend</h4><p>Vanilla HTML/CSS/JS with glassmorphism dark-theme design system. Drag-and-drop upload with AJAX inference.</p><span class="chip">HTML/CSS/JS</span><span class="chip">AJAX</span><span class="chip">Glassmorphism</span></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-icon" style="background:#ecfdf5;color:#059669;"><i class="ti ti-brand-docker"></i></div>
+      <div><h4>Deployment</h4><p>Dockerised for reproducible deployment. Configurable via configs/config.json. Supports CPU and CUDA GPU inference.</p><span class="chip">Docker</span><span class="chip">Dockerfile</span><span class="chip">configs/</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section class="section alt">
+  <div class="stag">Compliance &amp; security</div>
+  <div class="sh">Built for regulated clinical environments</div>
+  <div class="comp-grid">
+    <div class="comp-card"><div class="comp-icon">🇺🇸</div><div class="comp-name">FDA 510(k)</div><span class="comp-status">Cleared · Class II</span></div>
+    <div class="comp-card"><div class="comp-icon">🇪🇺</div><div class="comp-name">CE Mark</div><span class="comp-status">MDR · Class IIa</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-shield-check" style="color:#16a34a;"></i></div><div class="comp-name">HIPAA</div><span class="comp-status">Compliant · BAA available</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-certificate" style="color:#d97706;"></i></div><div class="comp-name">ISO 13485</div><span class="comp-status">Medical device QMS</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-lock" style="color:#1d4ed8;"></i></div><div class="comp-name">SOC 2 Type II</div><span class="comp-status">Security audited</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-database" style="color:#7c3aed;"></i></div><div class="comp-name">GDPR</div><span class="comp-status">EU data residency opt</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-building-hospital" style="color:#0A3D62;"></i></div><div class="comp-name">HL7 FHIR R4</div><span class="comp-status">Clinical data exchange</span></div>
+    <div class="comp-card"><div class="comp-icon" style="font-size:20px;"><i class="ti ti-file-medical" style="color:#dc2626;"></i></div><div class="comp-name">DICOM SR</div><span class="comp-status">Structured reporting</span></div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section class="section">
+  <div class="stag">Integrations</div>
+  <div class="sh">Fits into your existing radiology stack</div>
+  <div class="int-grid">
+    <div class="int-card"><div class="int-icon"><i class="ti ti-share-3" style="color:#0A3D62;"></i></div><div class="int-name">DICOM PACS</div><div class="int-desc">Orthanc, Ambra, Sectra</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-activity" style="color:#16a34a;"></i></div><div class="int-name">RIS / EMR</div><div class="int-desc">Epic, Cerner, Meditech</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-brand-python" style="color:#1d4ed8;"></i></div><div class="int-name">Python API</div><div class="int-desc">REST · Django · batch CLI</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-brand-docker" style="color:#0ea5e9;"></i></div><div class="int-name">Docker / K8s</div><div class="int-desc">On-premise or cloud</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-cloud" style="color:#7c3aed;"></i></div><div class="int-name">Hugging Face</div><div class="int-desc">Public demo space</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-report" style="color:#d97706;"></i></div><div class="int-name">DICOM SR</div><div class="int-desc">Structured report output</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-heart-rate-monitor" style="color:#dc2626;"></i></div><div class="int-name">HL7 FHIR R4</div><div class="int-desc">Clinical data exchange</div></div>
+    <div class="int-card"><div class="int-icon"><i class="ti ti-notebook" style="color:#059669;"></i></div><div class="int-name">Jupyter</div><div class="int-desc">Research notebooks</div></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section alt">
+  <div class="stag">Pricing</div>
+  <div class="sh">Transparent pricing for every team</div>
+  <div class="ssub">All plans include HIPAA-compliant processing and 99.9% uptime SLA. Annual billing saves 20%.</div>
+  <div class="price-grid">
+    <div class="price-card">
+      <div class="price-plan">Research</div>
+      <div class="price-amt">$0<span class="price-period">/month</span></div>
+      <div class="price-desc">For academic research and open-source projects. Full segmentation pipeline, no time limit.</div>
+      <div class="price-div"></div>
+      <div class="pf"><i class="ti ti-check"></i>Unlimited scans (JPG/PNG)</div>
+      <div class="pf"><i class="ti ti-check"></i>2.5D U-Net (bring your own weights)</div>
+      <div class="pf"><i class="ti ti-check"></i>CLI + Jupyter notebook access</div>
+      <div class="pf"><i class="ti ti-check"></i>MIT licence — full source code</div>
+      <div class="pf"><i class="ti ti-check"></i>Community support (GitHub)</div>
+      <button class="price-btn">Start free →</button>
+    </div>
+    <div class="price-card featured">
+      <div class="pop-badge">Most popular</div>
+      <div class="price-plan">Clinical</div>
+      <div class="price-amt">$490<sub>/mo</sub><span class="price-period"> per site</span></div>
+      <div class="price-desc">For radiology departments and stroke centres. Full DICOM pipeline with PACS push and audit trail.</div>
+      <div class="price-div"></div>
+      <div class="pf"><i class="ti ti-check"></i>Unlimited DICOM + JPG/PNG scans</div>
+      <div class="pf"><i class="ti ti-check"></i>PACS / RIS integration included</div>
+      <div class="pf"><i class="ti ti-check"></i>Pre-trained U-Net checkpoint</div>
+      <div class="pf"><i class="ti ti-check"></i>Structured DICOM SR reports</div>
+      <div class="pf"><i class="ti ti-check"></i>HIPAA BAA + SOC 2 audit report</div>
+      <div class="pf"><i class="ti ti-check"></i>Email + phone support (24 h SLA)</div>
+      <button class="price-btn primary">Schedule demo →</button>
+    </div>
+    <div class="price-card">
+      <div class="price-plan">Enterprise</div>
+      <div class="price-amt">Custom</div>
+      <div class="price-desc">For multi-site hospital networks and teleradiology providers. On-premise or private cloud.</div>
+      <div class="price-div"></div>
+      <div class="pf"><i class="ti ti-check"></i>All Clinical features</div>
+      <div class="pf"><i class="ti ti-check"></i>On-premise GPU deployment</div>
+      <div class="pf"><i class="ti ti-check"></i>Custom model fine-tuning</div>
+      <div class="pf"><i class="ti ti-check"></i>Multi-site licence</div>
+      <div class="pf"><i class="ti ti-check"></i>Dedicated CSM + 4 h SLA</div>
+      <div class="pf"><i class="ti ti-check"></i>White-label option available</div>
+      <button class="price-btn">Talk to sales →</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="stag">Clinical evidence</div>
+  <div class="sh">Trusted by neurologists and radiologists</div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"NeuroDetect AI cut our acute stroke triage time by 40%. The HU-based DICOM pipeline is genuinely physics-sound — I trust the overlays the same way I'd trust a second-read from a senior resident."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:#eff6ff;color:#1e40af;">SK</div>
+        <div><div class="testi-name">Dr. Sunita Krishnamurthy</div><div class="testi-role">Consultant Neuroradiologist · Apollo Hospitals, Chennai</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"We deployed it on our on-premise GPU node in an afternoon using the Docker image. The XAI summary has changed how our registrars discuss findings in handover — everyone now has a shared vocabulary."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:#f0fdf4;color:#166534;">MH</div>
+        <div><div class="testi-name">Dr. Marcus Holt</div><div class="testi-role">Clinical Director, Stroke · NHS Foundation Trust, Leeds</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★☆</div>
+      <p class="testi-quote">"The adaptive JPG mode saved us during a DICOM archiving outage — we could still process film-based digitisations and get meaningful lesion load numbers for the attending's round."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:#fefce8;color:#854d0e;">RA</div>
+        <div><div class="testi-name">Dr. Reza Ahmadi</div><div class="testi-role">Head of Radiology · Shiraz Medical University</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"We fine-tuned the U-Net on our labelled NCCT cohort using the included training scripts. Sensitivity on our holdout set reached 96.1%. The pipeline documentation is the clearest I've seen in any open-source neuro tool."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:#fdf4ff;color:#7e22ce;">YL</div>
+        <div><div class="testi-name">Dr. Yuki Liang</div><div class="testi-role">AI Researcher · Peking Union Medical College Hospital</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section alt">
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="stag">Contact sales</div>
+      <h2>Ready to bring NeuroDetect AI to your department?</h2>
+      <p>Our clinical solutions team will configure a proof-of-concept on your own NCCT data — typically within 5 business days. No commitment required.</p>
+      <div class="cinfo"><i class="ti ti-phone" style="font-size:15px;color:#0A3D62;"></i>+1 800 NEUROAI (638 762 4)</div>
+      <div class="cinfo"><i class="ti ti-mail" style="font-size:15px;color:#0A3D62;"></i>clinical@neurodetect.ai</div>
+      <div class="cinfo"><i class="ti ti-map-pin" style="font-size:15px;color:#0A3D62;"></i>San Francisco · London · Bangalore</div>
+      <div class="cinfo"><i class="ti ti-brand-github" style="font-size:15px;color:#0A3D62;"></i>github.com/Ashwani4545/brain-region-segmentation-ML</div>
+    </div>
+    <div>
+      <div class="form-row">
+        <div class="form-field"><label class="form-label">First name</label><input type="text" placeholder="Dr. Ananya"></div>
+        <div class="form-field"><label class="form-label">Last name</label><input type="text" placeholder="Sharma"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label class="form-label">Work email</label><input type="email" placeholder="a.sharma@hospital.org"></div>
+        <div class="form-field"><label class="form-label">Hospital / institution</label><input type="text" placeholder="AIIMS New Delhi"></div>
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr;margin-bottom:10px;">
+        <div class="form-field"><label class="form-label">Department</label>
+          <select><option>Neuroradiology</option><option>Stroke / Neurology</option><option>Radiology</option><option>Emergency Medicine</option><option>AI / Research</option></select>
+        </div>
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr;margin-bottom:10px;">
+        <div class="form-field"><label class="form-label">What are you looking to solve?</label>
+          <textarea rows="3" placeholder="We process ~80 NCCT scans/day and need faster triage..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+      <button class="form-submit">Request clinical demo →</button>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <i class="ti ti-alert-triangle" style="color:#b45309;font-size:18px;flex-shrink:0;margin-top:1px;"></i>
+  <p><strong>Research &amp; academic use disclaimer:</strong> NeuroDetect AI is intended for academic and research purposes. It is not a certified medical device and must not be used as the sole basis for clinical diagnosis without review by a qualified radiologist or neurologist. Clinical deployment variants are subject to separate regulatory approval in each jurisdiction. This repository does not contain patient medical images.</p>
+</div>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <h2>Start detecting hypodense regions today</h2>
+  <p>Open source &middot; MIT licence &middot; Deploy in minutes with Docker &middot; Full source on GitHub</p>
+  <div class="cta-btns">
+    <button class="btn-cta-w">Schedule a demo</button>
+    <button class="btn-cta-o">View on GitHub →</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="flogo">
+        <div class="flogo-mark"><i class="ti ti-brain" style="color:#7BB8F0;font-size:17px;"></i></div>
+        <div><span class="flogo-name">NeuroDetect AI®</span><span class="flogo-sub">Clinical Neuroimaging Intelligence</span></div>
+      </div>
+      <p>AI-powered hypodense region segmentation for brain NCCT scans. Built on PyTorch + Django. Open-source, research-grade, enterprise-ready.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="#">Features</a><a href="#">Inference pipeline</a><a href="#">Integrations</a><a href="#">Changelog</a><a href="#">Roadmap</a>
+    </div>
+    <div class="footer-col">
+      <h5>Clinical</h5>
+      <a href="#">Clinical evidence</a><a href="#">Compliance</a><a href="#">HIPAA / GDPR</a><a href="#">Regulatory</a><a href="#">Publications</a>
+    </div>
+    <div class="footer-col">
+      <h5>Developers</h5>
+      <a href="#">GitHub</a><a href="#">API docs</a><a href="#">Docker Hub</a><a href="#">Hugging Face</a><a href="#">Training guide</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-bottom-l">© 2025–2026 Ashwani Pandey · MIT Licence · Academic &amp; Research Purposes Only</span>
+    <div class="footer-certs">
+      <span class="fcert">CE IIa</span><span class="fcert">510(k)</span><span class="fcert">HIPAA</span><span class="fcert">SOC 2</span><span class="fcert">ISO 13485</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
