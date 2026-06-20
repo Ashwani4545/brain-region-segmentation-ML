@@ -270,3 +270,5 @@ NeuroDetect AI demonstrates end-to-end AI + healthcare integration — from raw 
 <img width="1498" height="635" alt="image" src="https://github.com/user-attachments/assets/eaed19fc-2131-4338-9b76-573c3e6a94e3" />
 <img width="1517" height="637" alt="image" src="https://github.com/user-attachments/assets/9d94f530-da8f-4787-9235-35ab955c193c" />
 <img width="1501" height="527" alt="image" src="https://github.com/user-attachments/assets/fcca9c25-47fb-4df1-bc77-ee8ad4645933" />
+<img width="1505" height="528" alt="image" src="https://github.com/user-attachments/assets/34b2b8d6-d79f-4a0c-9bc1-658d61ed9c60" />
+<img width="1507" height="522" alt="image" src="https://github.com/user-attachments/assets/d79feeda-84bc-4b69-bd0a-facfc1f42d26" />
