@@ -17,16 +17,6 @@
 
 ---
 
-## 📸 Application Preview
-
-| Landing Page | Scanner App | AI Overlay Result |
-|---|---|---|
-| Premium dark-theme hero page | Drag-and-drop NCCT upload | Red-highlighted hypodense regions with confidence score |
-<img width="1498" height="635" alt="image" src="https://github.com/user-attachments/assets/eaed19fc-2131-4338-9b76-573c3e6a94e3" />
-<img width="1517" height="637" alt="image" src="https://github.com/user-attachments/assets/9d94f530-da8f-4787-9235-35ab955c193c" />
-<img width="1501" height="527" alt="image" src="https://github.com/user-attachments/assets/fcca9c25-47fb-4df1-bc77-ee8ad4645933" />
-
----
 
 ## 🎯 What This Does
 
@@ -271,3 +261,12 @@ Use     : Academic & Research Purposes Only
 ## 🏁 Summary
 
 NeuroDetect AI demonstrates end-to-end AI + healthcare integration — from raw NCCT data through deep learning segmentation to a production-ready web interface. The dual-mode inference pipeline (HU thresholding for DICOM, adaptive thresholding for JPG/PNG) delivers clinically meaningful results even without a pre-trained model, making it accessible for research and demonstration immediately after setup.
+
+## 📸 Application Preview
+
+| Landing Page | Scanner App | AI Overlay Result |
+|---|---|---|
+| Premium dark-theme hero page | Drag-and-drop NCCT upload | Red-highlighted hypodense regions with confidence score |
+<img width="1498" height="635" alt="image" src="https://github.com/user-attachments/assets/eaed19fc-2131-4338-9b76-573c3e6a94e3" />
+<img width="1517" height="637" alt="image" src="https://github.com/user-attachments/assets/9d94f530-da8f-4787-9235-35ab955c193c" />
+<img width="1501" height="527" alt="image" src="https://github.com/user-attachments/assets/fcca9c25-47fb-4df1-bc77-ee8ad4645933" />
