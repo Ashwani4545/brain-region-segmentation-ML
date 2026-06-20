@@ -272,3 +272,11 @@ NeuroDetect AI demonstrates end-to-end AI + healthcare integration — from raw 
 <img width="1501" height="527" alt="image" src="https://github.com/user-attachments/assets/fcca9c25-47fb-4df1-bc77-ee8ad4645933" />
 <img width="1505" height="528" alt="image" src="https://github.com/user-attachments/assets/34b2b8d6-d79f-4a0c-9bc1-658d61ed9c60" />
 <img width="1507" height="522" alt="image" src="https://github.com/user-attachments/assets/d79feeda-84bc-4b69-bd0a-facfc1f42d26" />
+<img width="1502" height="435" alt="image" src="https://github.com/user-attachments/assets/2f5d72e8-ea49-483f-a1ac-f1a8beb82d57" />
+<img width="1483" height="372" alt="image" src="https://github.com/user-attachments/assets/b6193533-598d-4cc0-872a-90cdfdc53c9b" />
+<img width="1482" height="403" alt="image" src="https://github.com/user-attachments/assets/84fae1be-bd1d-4539-8779-012b0a48af62" />
+<img width="1505" height="625" alt="image" src="https://github.com/user-attachments/assets/1484d721-9bc1-4613-a5b3-e018a7d04273" />
+<img width="1507" height="508" alt="image" src="https://github.com/user-attachments/assets/e9eb35e0-a2d1-45c2-8145-8c8543959f1f" />
+<img width="1502" height="388" alt="image" src="https://github.com/user-attachments/assets/404195ad-b90b-4d05-950f-c9d6c390de71" />
+<img width="1512" height="605" alt="image" src="https://github.com/user-attachments/assets/82355afa-55cd-4a31-8071-ced665e45d6f" />
+
