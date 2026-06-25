@@ -7,7 +7,7 @@ WORKDIR /install
 
 # System libraries required by OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 gcc \
+    libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 gcc libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
