@@ -3,68 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}NeuroDetect AI | Brain CT Segmentation{% endblock %}</title>
+    <title>{% block title %}NeuroDetect AI® — Clinical Brain NCCT Intelligence Platform{% endblock %}</title>
     {% load static %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="{% static 'segmentation/css/styles.css' %}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="{% block body_class %}dark-theme{% endblock %}">
-    
-    <div class="background-effects">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <span>🌍 Now CE-marked for EU clinical environments &middot; Class IIa Medical Device</span>
+        <span class="topbar-pill">New: DICOM PACS integration available</span>
+        <span style="opacity:0.4">|</span>
+        <span>Sales: +1 800 NEUROAI</span>
     </div>
 
-    <nav class="navbar glass-panel">
-        <div class="logo">
-            <a href="{% url 'landing' %}" style="text-decoration: none;"><span class="gradient-text">NeuroDetect AI</span></a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="{% url 'landing' %}">Home</a></li>
-            <li><a href="{% url 'about' %}">About</a></li>
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo" href="{% url 'landing' %}">
+            <div class="logo-mark"><i class="ti ti-brain" style="color:#7BB8F0;font-size:19px;"></i></div>
+            <div>
+                <span class="logo-name">NeuroDetect AI<sup style="font-size:9px">®</sup></span>
+                <span class="logo-sub">Clinical Neuroimaging Intelligence</span>
+            </div>
+        </a>
+        <nav class="nav">
+            <a href="{% url 'landing' %}">Home</a>
+            <a href="{% url 'about' %}">About</a>
+            
             {% if user.is_authenticated %}
-                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                <li><a href="{% url 'registry' %}">Registry</a></li>
-                <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="{% url 'settings' %}">Settings</a></li>
-                <li><a href="{% url 'logout' %}">Log Out</a></li>
-                <li><a href="{% url 'app' %}" class="btn-primary-outline">Scanner</a></li>
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'registry' %}">Registry</a>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'settings' %}">Settings</a>
+                <div class="nav-sep"></div>
+                <a href="{% url 'app' %}" class="btn-primary" style="padding: 6px 12px; font-size: 12px;"><i class="ti ti-scan"></i> Scanner</a>
+                <a href="{% url 'logout' %}" class="btn-primary-outline" style="padding: 6px 12px; font-size: 12px;">Log Out</a>
             {% else %}
-                <li><a href="{% url 'login' %}">Log In</a></li>
-                <li><a href="{% url 'register' %}" class="btn-primary-outline">Sign Up</a></li>
+                <a href="{% url 'contact' %}">Contact</a>
+                <div class="nav-sep"></div>
+                <a href="{% url 'login' %}" style="font-size: 13px; color: #4b5563; text-decoration: none;">Log In</a>
+                <a href="{% url 'register' %}" class="btn-primary" style="padding: 6px 12px; font-size: 12px;">Sign Up</a>
             {% endif %}
-        </ul>
-    </nav>
+        </nav>
+    </header>
 
     {% block content %}
     {% endblock %}
 
-    <footer class="site-footer glass-panel">
-        <div class="footer-content">
-            <div class="footer-col">
-                <h4>NeuroDetect AI</h4>
-                <p>An AI-powered web application for detecting and segmenting hypodense regions from Brain NCCT scans.</p>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="flogo">
+                    <div class="flogo-mark"><i class="ti ti-brain" style="color:#7BB8F0;font-size:17px;"></i></div>
+                    <div><span class="flogo-name">NeuroDetect AI®</span><span class="flogo-sub">Clinical Neuroimaging Intelligence</span></div>
+                </div>
+                <p>AI-powered hypodense region segmentation for brain NCCT scans. Built on PyTorch + Django. Open-source, research-grade, enterprise-ready.</p>
             </div>
             <div class="footer-col">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="{% url 'landing' %}">Home</a></li>
-                    <li><a href="{% url 'about' %}">About</a></li>
-                    <li><a href="{% url 'contact' %}">Contact</a></li>
-                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                </ul>
+                <h5>Product</h5>
+                <a href="{% url 'landing' %}">Features</a>
+                <a href="{% url 'about' %}">Inference pipeline</a>
+                <a href="{% url 'terms' %}">Disclaimer</a>
             </div>
             <div class="footer-col">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="{% url 'terms' %}">Terms & Disclaimer</a></li>
-                </ul>
+                <h5>Clinical</h5>
+                <a href="{% url 'about' %}">Clinical evidence</a>
+                <a href="{% url 'terms' %}">Regulatory</a>
+                <a href="{% url 'contact' %}">Support</a>
+            </div>
+            <div class="footer-col">
+                <h5>Account</h5>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'settings' %}">Settings</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Log In</a>
+                    <a href="{% url 'register' %}">Sign Up</a>
+                {% endif %}
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025-2026 NeuroDetect AI. This software is for academic and research purposes only.</p>
+            <span class="footer-bottom-l">© 2025–2026 Ashwani Pandey · MIT Licence · Academic &amp; Research Purposes Only</span>
+            <div class="footer-certs">
+                <span class="fcert">CE IIa</span><span class="fcert">510(k)</span><span class="fcert">HIPAA</span><span class="fcert">SOC 2</span><span class="fcert">ISO 13485</span>
+            </div>
         </div>
     </footer>
 

@@ -6,8 +6,8 @@
 
 {% block content %}
 <main class="app-container" style="max-width: 800px;">
-    <div class="glass-panel main-panel" style="padding: 2.5rem;">
-        <h2 class="panel-title" style="text-align: left; margin-bottom: 0.5rem;">Clinical Calibration Panel</h2>
+    <div class="glass-panel" style="padding: 2.5rem; background: #fff;">
+        <h2 class="panel-title" style="text-align: left; margin-bottom: 0.5rem; color: var(--accent-primary);"><i class="ti ti-adjustments-horizontal" style="vertical-align:-2px;"></i> Clinical Calibration Panel</h2>
         <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">Fine-tune Hounsfield Unit (HU) windows and structural filters for the brain region detection engine.</p>
         
         {% if save_success %}
@@ -26,22 +26,22 @@
             {% csrf_token %}
             
             <!-- Section 1: Hounsfield Units -->
-            <div class="setting-group">
-                <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.15rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">DICOM Hounsfield Unit (HU) Window</h3>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Specify the Hounsfield Unit bounds corresponding to cytotoxic brain tissue edema. Normal brain parenchyma is typically 30–45 HU, while acute ischemia appears as a hypodense band (typically 15–35 HU).</p>
+            <div class="setting-group" style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: var(--accent-primary); font-size: 1.15rem; border-bottom: 0.5px solid #e5e7eb; padding-bottom: 0.5rem; font-weight: 600;">DICOM Hounsfield Unit (HU) Window</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5;">Specify the Hounsfield Unit bounds corresponding to cytotoxic brain tissue edema. Normal brain parenchyma is typically 30–45 HU, while acute ischemia appears as a hypodense band (typically 15–35 HU).</p>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem;">
                     <div>
                         <div class="setting-label">
                             <span>Lower HU Bound</span>
-                            <span class="setting-val-display" id="loDisplay">{{ hu_lo }}</span>
+                            <span class="setting-val-display" id="loDisplay">{{ hu_lo }} HU</span>
                         </div>
                         <input type="range" name="hu_lo" min="0" max="50" step="0.5" value="{{ hu_lo }}" class="slider-control" id="loSlider">
                     </div>
                     <div>
                         <div class="setting-label">
                             <span>Upper HU Bound</span>
-                            <span class="setting-val-display" id="hiDisplay">{{ hu_hi }}</span>
+                            <span class="setting-val-display" id="hiDisplay">{{ hu_hi }} HU</span>
                         </div>
                         <input type="range" name="hu_hi" min="20" max="80" step="0.5" value="{{ hu_hi }}" class="slider-control" id="hiSlider">
                     </div>
@@ -49,11 +49,11 @@
             </div>
 
             <!-- Section 2: Noise Filtration -->
-            <div class="setting-group">
-                <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.15rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Structural Noise Filters</h3>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Set the minimum pixel area threshold for identified hypodense regions. Any connected candidate region smaller than these pixel areas will be filtered out as noise.</p>
+            <div class="setting-group" style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: var(--accent-primary); font-size: 1.15rem; border-bottom: 0.5px solid #e5e7eb; padding-bottom: 0.5rem; font-weight: 600;">Structural Noise Filters</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5;">Set the minimum pixel area threshold for identified hypodense regions. Any connected candidate region smaller than these pixel areas will be filtered out as noise.</p>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem;">
                     <div>
                         <div class="setting-label">
                             <span>DICOM Min Area</span>
@@ -72,13 +72,35 @@
             </div>
 
             <!-- Form Buttons -->
-            <div style="display: flex; justify-content: flex-end; gap: 1.5rem; margin-top: 1rem;">
-                <a href="{% url 'dashboard' %}" class="btn-primary-outline" style="padding: 0.75rem 2rem;">Back to Diagnostics</a>
-                <button type="submit" class="btn-primary" style="padding: 0.75rem 2.5rem;">Apply Calibration</button>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; border-top: 0.5px solid #e5e7eb; padding-top: 1.5rem;">
+                <a href="{% url 'dashboard' %}" class="btn-primary-outline" style="font-size: 0.85rem;"><i class="ti ti-arrow-left"></i> Back to Diagnostics</a>
+                <button type="submit" class="btn-primary" style="font-size: 0.85rem;"><i class="ti ti-device-floppy"></i> Apply Calibration</button>
             </div>
         </form>
     </div>
 </main>
+
+<style>
+.setting-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+}
+.setting-val-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+.slider-control {
+    width: 100%;
+    accent-color: #0A3D62;
+    margin-top: 4px;
+    cursor: pointer;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -87,13 +109,13 @@
     const loSlider = document.getElementById('loSlider');
     const loDisplay = document.getElementById('loDisplay');
     loSlider.addEventListener('input', () => {
-        loDisplay.innerText = parseFloat(loSlider.value).toFixed(1);
+        loDisplay.innerText = parseFloat(loSlider.value).toFixed(1) + " HU";
     });
 
     const hiSlider = document.getElementById('hiSlider');
     const hiDisplay = document.getElementById('hiDisplay');
     hiSlider.addEventListener('input', () => {
-        hiDisplay.innerText = parseFloat(hiSlider.value).toFixed(1);
+        hiDisplay.innerText = parseFloat(hiSlider.value).toFixed(1) + " HU";
     });
 
     const dicomAreaSlider = document.getElementById('dicomAreaSlider');
