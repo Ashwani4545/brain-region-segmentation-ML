@@ -1356,7 +1356,7 @@ body {
 /* ── Compliance / Security ────────────────────────────────────────────────── */
 .comp-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin-top: 28px;
 }
@@ -1394,7 +1394,7 @@ body {
 /* ── Integrations ─────────────────────────────────────────────────────────── */
 .int-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin-top: 28px;
 }
@@ -1866,4 +1866,17 @@ body {
     color: var(--text-secondary);
     text-align: center;
     margin-bottom: 24px;
+}
+
+/* Responsive Overrides for Grids */
+@media (max-width: 1024px) {
+    .int-grid, .comp-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .int-grid, .comp-grid {
+        grid-template-columns: 1fr;
+    }
 }
