@@ -36,3 +36,13 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ['timestamp']
+
+
+class PatientGuidance(models.Model):
+    scan = models.OneToOneField(PatientScan, on_delete=models.CASCADE, related_name='guidance')
+    diet_plan = models.JSONField()            # foods to eat, avoid, and portion advice
+    exercise_plan = models.JSONField()        # safe physical activities
+    lifestyle_plan = models.JSONField()       # stress, sleep, and warning red flags
+    doctor_questions = models.JSONField()     # 5-8 consult questions
+    specialist_routing = models.JSONField()   # specialty and referral tips
+    created_at = models.DateTimeField(auto_now_add=True)

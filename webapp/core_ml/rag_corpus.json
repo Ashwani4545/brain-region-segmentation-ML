@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "modality": "CT",
+    "condition": "Stroke / Cytotoxic Edema",
+    "title": "NHS Guidelines: Ischemic Stroke Edema Management",
+    "content": "Cytotoxic edema or swelling commonly occurs within the first 24-48 hours of an acute ischemic stroke. In CT scans, this appears as areas of decreased Hounsfield density (15-35 HU). Patients showing signs of cerebral edema should be placed in a semi-recumbent position with the head of the bed elevated at 30 degrees to minimize intracranial pressure. Avoid hypotonic intravenous fluids. Consult neurology immediately to evaluate for anti-edema therapies or decompressive craniectomy if midline shift is present."
+  },
+  {
+    "id": 2,
+    "modality": "CT",
+    "condition": "Stroke / Cytotoxic Edema",
+    "title": "Nutrition for Post-Stroke Recovery",
+    "content": "Post-stroke dietary plans should focus on reducing sodium (salt) intake to less than 1,500 mg per day to prevent hypertension and recurrent cardiovascular events. Incorporate a Mediterranean-style diet high in omega-3 fatty acids (salmon, walnuts, flaxseeds) which support neuroprotection. Avoid saturated fats, trans fats, and added sugars. Ensure high hydration levels to help cerebral perfusion."
+  },
+  {
+    "id": 3,
+    "modality": "CXR",
+    "condition": "Pneumonia / Consolidation",
+    "title": "WHO Guidelines: Treatment of Pulmonary Consolidation and Pneumonia",
+    "content": "Pulmonary consolidation indicates the replacement of air in the alveolar spaces with fluid, pus, or cells, commonly resulting from bacterial or viral pneumonia. Patients showing opacities on Chest X-rays should be closely monitored for respiratory status (Respiratory Rate, SpO2). Empirical antibiotic therapy should be initiated within 4 hours of detection for suspected bacterial pneumonia. Ensure adequate rest and active airway clearance (chest physiotherapy)."
+  },
+  {
+    "id": 4,
+    "modality": "CXR",
+    "condition": "Pneumonia / Consolidation",
+    "title": "Lifestyle and Recovery from Pulmonary Infections",
+    "content": "During pneumonia recovery, absolute physical rest is crucial. Avoid strenuous exercise. Patients should perform deep breathing exercises (5-10 repetitions every hour while awake) and use incentive spirometry to prevent alveolar collapse. Stay hydrated (2-3 liters of fluids daily) to help thin pulmonary secretions. Completely avoid exposure to tobacco smoke, vaporizers, and chemical inhalants."
+  },
+  {
+    "id": 5,
+    "modality": "CXR",
+    "condition": "Cardiomegaly",
+    "title": "AHA Guidelines: Management of Cardiomegaly and Ventricular Enlargement",
+    "content": "An enlarged heart shadow (CTR > 0.50) on a chest X-ray indicates cardiomegaly, often secondary to hypertension, valvular disease, or cardiomyopathy. Patients should undergo an echocardiogram to evaluate ejection fraction (EF) and ventricular structure. Management focuses on blood pressure control (targeting < 130/80 mmHg). Avoid high-sodium diets, high-volume fluid overloading, and NSAID medications which can precipitate fluid retention."
+  },
+  {
+    "id": 6,
+    "modality": "CXR",
+    "condition": "Cardiomegaly",
+    "title": "Exercise and Diet for Cardiac Enlargement",
+    "content": "Patients with cardiomegaly should engage in low-intensity, progressive aerobic exercises, such as light walking (15-30 minutes daily), only after clearance from a cardiologist. Avoid heavy weightlifting, high-intensity intervals, or valsalva maneuvers. Eat a heart-healthy diet low in saturated fats and high in potassium-rich foods (bananas, leafy greens) to support myocardial health, unless contraindicated by renal dysfunction."
+  },
+  {
+    "id": 7,
+    "modality": "ECG",
+    "condition": "Bradycardia",
+    "title": "ACC/AHA Guidelines: Evaluation of Bradycardia and Heart Block",
+    "content": "Sinus bradycardia (Heart Rate < 60 BPM) requires evaluation for symptomatic onset (dizziness, syncope, fatigue, chest pain). Ensure review of beta-blockers, calcium-channel blockers, and antiarrhythmic medications. In asymptomatic patients, sinus bradycardia is common in athletes and requires no active intervention. Monitor for progressive conduction delays."
+  },
+  {
+    "id": 8,
+    "modality": "ECG",
+    "condition": "Tachycardia",
+    "title": "ACC/AHA Guidelines: Management of Resting Tachycardia",
+    "content": "Sinus tachycardia (Heart Rate > 100 BPM) is a physiological response to stress, fever, dehydration, anemia, hyperthyroidism, or anxiety. Address the underlying etiology first. Avoid cardiac stimulants, including caffeine, nicotine, alcohol, and over-the-counter decongestants (pseudoephedrine). Ensure fluid rehydration."
+  },
+  {
+    "id": 9,
+    "modality": "ECG",
+    "condition": "Arrhythmia / Irregular Rhythm",
+    "title": "ESC Guidelines: Management of Atrial Fibrillation and Arrhythmias",
+    "content": "Irregular heartbeat rhythms (increased R-R interval variation) require a 12-lead ECG and diagnostic 24-hour Holter monitoring. If atrial fibrillation is suspected, assess thromboembolic risk (CHA2DS2-VASc score) to evaluate the need for oral anticoagulants. Avoid alcohol, stimulants, and severe emotional distress, which act as triggers."
+  },
+  {
+    "id": 10,
+    "modality": "BLOOD_TEST",
+    "condition": "Anemia (Low Hemoglobin)",
+    "title": "NIH Guidelines: Diagnosis and Treatment of Iron-Deficiency Anemia",
+    "content": "Hemoglobin levels below 12.0 g/dL indicate anemia, which limits oxygen delivery. Increase intake of heme iron (red meat, fish, poultry) and non-heme iron (spinach, lentils, beans). Pair iron-rich foods with Vitamin C (citrus, bell peppers) to double absorption. Avoid drinking tea or coffee during meals, as polyphenols inhibit iron absorption by up to 60%."
+  },
+  {
+    "id": 11,
+    "modality": "BLOOD_TEST",
+    "condition": "Hyperglycemia (High Glucose)",
+    "title": "ADA Guidelines: Fasting Glucose and Diabetes Management",
+    "content": "Fasting blood glucose levels above 100 mg/dL indicate impaired glucose tolerance (pre-diabetes), and values above 126 mg/dL suggest diabetes. Focus on a low-glycemic index diet. Eliminate refined sugars, white bread, sodas, and juices. Incorporate complex fiber (oats, quinoa, vegetables) to slow glucose absorption. Engage in light post-meal walking for 10-15 minutes to increase insulin sensitivity."
+  },
+  {
+    "id": 12,
+    "modality": "BLOOD_TEST",
+    "condition": "Hypercholesterolemia (High Cholesterol)",
+    "title": "ACC/AHA Guidelines: Cholesterol Management and Cardiovascular Risk",
+    "content": "Total cholesterol levels above 200 mg/dL indicate hypercholesterolemia, increasing plaque formation risk. Diet should include soluble fiber (oats, beans, barley, apples) which binds cholesterol in the digestive tract and removes it. Limit saturated fats to < 7% of daily calories and eliminate trans fats. Replace with healthy monounsaturated fats (olive oil, avocados)."
+  }
+]

@@ -2138,3 +2138,46 @@ body {
     }
 }
 
+/* Interactive Patient Recovery Blueprint Tabs */
+.tab-btn {
+    border-bottom: 2px solid transparent !important;
+}
+
+.tab-btn:hover {
+    color: var(--accent-primary) !important;
+    background: rgba(79, 70, 229, 0.04) !important;
+}
+
+.tab-btn.active {
+    color: var(--accent-primary) !important;
+    border-bottom: 2px solid var(--accent-primary) !important;
+    background: #ffffff !important;
+}
+
+.tab-pane.hidden {
+    display: none !important;
+}
+
+.plan-sub-box {
+    background: #f9fafb;
+    border: 0.5px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.plan-list {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.plan-list li {
+    margin-bottom: 6px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.plan-list li::marker {
+    color: var(--accent-primary);
+}
+

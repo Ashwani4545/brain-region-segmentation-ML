@@ -10,7 +10,7 @@ from django.db.models import Avg
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from .models import PatientScan, ChatMessage
+from .models import PatientScan, ChatMessage, PatientGuidance
 
 # Allowed file extensions for upload validation
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.dcm', '.pdf'}
@@ -243,6 +243,7 @@ def predict_api(request):
 
     # ── Save to Database ────────────────────────────────────────────────────
     scan_id = None
+    guidance_data = {}
     try:
         scan = PatientScan.objects.create(
             user=request.user if request.user.is_authenticated else None,
@@ -256,9 +257,23 @@ def predict_api(request):
             notes=result.get('findings_text', '') # Store raw clinical findings in notes
         )
         scan_id = scan.id
+        
+        # ── Generate & Save Guidance ────────────────────────────────────────
+        from core_ml.guidance import get_guidance_generator
+        generator = get_guidance_generator()
+        guidance_data = generator.generate_guidance(modality, result.get('findings_text', ''))
+        
+        PatientGuidance.objects.create(
+            scan=scan,
+            diet_plan=guidance_data.get('diet', {}),
+            exercise_plan=guidance_data.get('exercise', {}),
+            lifestyle_plan=guidance_data.get('lifestyle', {}),
+            doctor_questions=guidance_data.get('questions', []),
+            specialist_routing=guidance_data.get('routing', {})
+        )
     except Exception as db_err:
         # Log error, but don't crash response if db write fails
-        print(f"[Database Error] Could not log scan: {db_err}")
+        print(f"[Database Error] Could not log scan or guidance: {db_err}")
 
     return JsonResponse({
         'success':      True,
@@ -270,7 +285,8 @@ def predict_api(request):
         'confidence':   result['confidence'],
         'detected':     result['detected'],
         'findings_text': result.get('findings_text', ''),
-        'metrics':       result.get('metrics', []) # blood test parsed parameters
+        'metrics':       result.get('metrics', []), # blood test parsed parameters
+        'guidance':      guidance_data
     })
 
 
@@ -335,6 +351,21 @@ def chat_api(request, scan_id):
             else:
                 extra_instructions = "Explain brain CT scans. Warn about stroke signs like facial drooping, arm weakness, or slurred speech."
                 
+            # Query associated PatientGuidance from DB if it exists
+            guidance_context = ""
+            try:
+                guidance = scan.guidance
+                guidance_context = (
+                    "Patient recovery guidance blueprint:\n"
+                    f"- Diet recommended: {', '.join(guidance.diet_plan.get('recommended', []))}\n"
+                    f"- Diet to avoid: {', '.join(guidance.diet_plan.get('avoid', []))}\n"
+                    f"- Exercise allowed: {', '.join(guidance.exercise_plan.get('allowed', []))}\n"
+                    f"- Exercise restrictions: {', '.join(guidance.exercise_plan.get('restrictions', []))}\n"
+                    f"- Lifestyle red flags: {', '.join(guidance.lifestyle_plan.get('red_flags', []))}\n\n"
+                )
+            except Exception:
+                pass
+
             # Format system prompt
             system_prompt = (
                 "You are MedAssist, a compassionate AI healthcare companion on NeuroDetect AI. "
@@ -343,6 +374,7 @@ def chat_api(request, scan_id):
                 f"Anomalies detected ({findings_label}): {scan.detected}\n"
                 f"Telemetry Metric (Confidence/Percentage): {scan.confidence}%\n"
                 f"Raw Findings Details: {scan.notes or ''}\n\n"
+                f"{guidance_context}"
                 "Guidelines:\n"
                 "1. Speak in simple, comforting, non-medical language.\n"
                 "2. Directly acknowledge patient anxiety and validate emotions.\n"

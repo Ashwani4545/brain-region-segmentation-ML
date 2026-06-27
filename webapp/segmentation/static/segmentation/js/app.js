@@ -37,6 +37,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentScanId = null;
     let typingIndicatorElem = null;
 
+    // Setup Tab Switcher Handlers
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-tab');
+            
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabPanes.forEach(p => {
+                p.classList.add('hidden');
+                p.classList.remove('active');
+            });
+            
+            btn.classList.add('active');
+            const targetPane = document.getElementById(`tab-${targetTab}`);
+            if (targetPane) {
+                targetPane.classList.remove('hidden');
+                targetPane.classList.add('active');
+            }
+        });
+    });
+
     // Reset button handler
     resetBtn.addEventListener('click', () => {
         resultsArea.classList.add('hidden');
@@ -44,6 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.value = '';
         currentScanId = null;
         document.getElementById('chatMessages').innerHTML = '';
+        
+        // Reset tabs to default active
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => {
+            p.classList.add('hidden');
+            p.classList.remove('active');
+        });
+        const firstBtn = document.querySelector('.tab-btn[data-tab="imaging"]');
+        if (firstBtn) firstBtn.classList.add('active');
+        const firstPane = document.getElementById('tab-imaging');
+        if (firstPane) {
+            firstPane.classList.remove('hidden');
+            firstPane.classList.add('active');
+        }
     });
 
     // Chat elements
@@ -207,6 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('explainText').innerText = `No Analysis Findings. The model did not detect significant anomalies in this scan slice.`;
                     }
                 }
+
+                // Populate interactive RAG recovery tabs
+                populateGuidanceTabs(data.guidance);
 
                 resultsArea.classList.remove('hidden');
 
@@ -374,6 +414,78 @@ document.addEventListener('DOMContentLoaded', () => {
             hideTypingIndicator();
             console.error('Chat error:', error);
             addMessageBubble('assistant', "A network error occurred. Please verify your connection.");
+        });
+    }
+
+    function populateGuidanceTabs(guidance) {
+        if (!guidance) return;
+        
+        // 1. Populate Diet Tab
+        const diet = guidance.diet || {};
+        const recList = document.getElementById('dietRecommendedList');
+        const avoidList = document.getElementById('dietAvoidList');
+        recList.innerHTML = '';
+        avoidList.innerHTML = '';
+        
+        (diet.recommended || []).forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            recList.appendChild(li);
+        });
+        (diet.avoid || []).forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            avoidList.appendChild(li);
+        });
+        document.getElementById('dietReasoningText').innerText = diet.reasoning || '--';
+        
+        // 2. Populate Recovery & Exercise Tab
+        const exercise = guidance.exercise || {};
+        const allowedList = document.getElementById('exerciseAllowedList');
+        const restrictedList = document.getElementById('exerciseRestrictedList');
+        allowedList.innerHTML = '';
+        restrictedList.innerHTML = '';
+        
+        (exercise.allowed || []).forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            allowedList.appendChild(li);
+        });
+        (exercise.restrictions || []).forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            restrictedList.appendChild(li);
+        });
+        
+        const lifestyle = guidance.lifestyle || {};
+        document.getElementById('lifestyleNotesText').innerText = lifestyle.notes || '--';
+        
+        // 3. Populate Doctor Guide Tab
+        const routing = guidance.routing || {};
+        document.getElementById('referralSpecialist').innerText = routing.specialist || '--';
+        
+        const urgencyBadge = document.getElementById('referralUrgency');
+        urgencyBadge.innerText = routing.urgency || '--';
+        urgencyBadge.className = 'med-badge';
+        
+        const urg = (routing.urgency || '').toLowerCase();
+        if (urg.includes('immediate') || urg.includes('high')) {
+            urgencyBadge.classList.add('med-badge-danger');
+        } else if (urg.includes('moderate')) {
+            urgencyBadge.classList.add('med-badge-warning');
+        } else {
+            urgencyBadge.classList.add('med-badge-success');
+        }
+        
+        document.getElementById('referralGuidance').innerText = routing.guidance || '--';
+        
+        const questionsList = document.getElementById('doctorQuestionsList');
+        questionsList.innerHTML = '';
+        (guidance.questions || []).forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            li.style.marginBottom = '4px';
+            questionsList.appendChild(li);
         });
     }
 });
