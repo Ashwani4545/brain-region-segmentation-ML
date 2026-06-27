@@ -142,3 +142,6 @@ if os.environ.get('AWS_ACCESS_KEY_ID'):
     AWS_DEFAULT_ACL = None
     AWS_QUERYSTRING_AUTH = True
 
+# -- Anthropic Claude API Configuration -----------------------------------------
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', None)
+

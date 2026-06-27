@@ -25,3 +25,14 @@ class PatientScan(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class ChatMessage(models.Model):
+    scan = models.ForeignKey(PatientScan, on_delete=models.CASCADE, related_name='chat_messages')
+    role = models.CharField(max_length=20)  # 'user' or 'assistant'
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    emotion_detected = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        ordering = ['timestamp']

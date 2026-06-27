@@ -34,10 +34,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    let currentScanId = null;
+    let typingIndicatorElem = null;
+
+    // Reset button handler
     resetBtn.addEventListener('click', () => {
         resultsArea.classList.add('hidden');
         uploadArea.classList.remove('hidden');
         fileInput.value = '';
+        currentScanId = null;
+        document.getElementById('chatMessages').innerHTML = '';
+    });
+
+    // Chat elements
+    const chatInput = document.getElementById('chatInput');
+    const sendChatBtn = document.getElementById('sendChatBtn');
+    const chatTags = document.querySelectorAll('.chat-tag');
+
+    if (chatInput && sendChatBtn) {
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage(chatInput.value);
+            }
+        });
+        sendChatBtn.addEventListener('click', () => {
+            sendChatMessage(chatInput.value);
+        });
+    }
+
+    chatTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            const msg = this.getAttribute('data-msg');
+            if (msg) {
+                sendChatMessage(msg);
+            }
+        });
     });
 
     function preventDefaults(e) {
@@ -64,19 +95,29 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadArea.classList.add('hidden');
         loadingState.classList.remove('hidden');
         resultsArea.classList.add('hidden');
+        currentScanId = null;
 
         const formData = new FormData();
         formData.append('image', file);
 
+        // Fetch CSRF Token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
         fetch(predictApiUrl, {
             method: 'POST',
             body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
         })
         .then(response => response.json())
         .then(data => {
             loadingState.classList.add('hidden');
             
             if (data.success) {
+                currentScanId = data.scan_id;
+                
                 // Populate images
                 document.getElementById('origImage').src = data.original_url;
                 document.getElementById('maskImage').src = data.mask_url;
@@ -102,6 +143,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('downloadBtn').href = data.overlay_url;
 
                 resultsArea.classList.remove('hidden');
+
+                // Clear old chat messages and disable/enable controls
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+
+                // Auto-trigger MedAssist welcome message after 2 seconds
+                setTimeout(() => {
+                    triggerWelcomeMessage(data);
+                }, 2000);
+
             } else {
                 alert('Error processing image: ' + data.error);
                 uploadArea.classList.remove('hidden');
@@ -112,6 +165,102 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingState.classList.add('hidden');
             uploadArea.classList.remove('hidden');
             alert('A network error occurred.');
+        });
+    }
+
+    function triggerWelcomeMessage(data) {
+        const msg = data.detected 
+            ? `Hello, I am MedAssist, your compassionate care companion. I see that the AI analysis flagged some hypodense regions (confidence: ${data.confidence}). I understand this can be concerning or cause anxiety. Please know I am here to help explain what these terms mean and guide you. How are you feeling right now?`
+            : `Hello, I am MedAssist, your compassionate care companion. The scan has been processed and did not show significant hypodensities (confidence: ${data.confidence}). How can I help you today?`;
+            
+        addMessageBubble('assistant', msg);
+    }
+
+    function addMessageBubble(role, text) {
+        const chatMessages = document.getElementById('chatMessages');
+        if (!chatMessages) return;
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${role}`;
+        
+        // Handle line breaks and lists
+        if (text.includes('\n')) {
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                const p = document.createElement('p');
+                p.innerText = line;
+                bubble.appendChild(p);
+            });
+        } else {
+            bubble.innerText = text;
+        }
+        
+        chatMessages.appendChild(bubble);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        if (typingIndicatorElem) return;
+        const chatMessages = document.getElementById('chatMessages');
+        if (!chatMessages) return;
+
+        const indicator = document.createElement('div');
+        indicator.className = 'chat-bubble assistant';
+        indicator.id = 'typingIndicator';
+        indicator.innerHTML = `
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+        chatMessages.appendChild(indicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        typingIndicatorElem = indicator;
+    }
+
+    function hideTypingIndicator() {
+        if (typingIndicatorElem) {
+            typingIndicatorElem.remove();
+            typingIndicatorElem = null;
+        }
+    }
+
+    function sendChatMessage(text) {
+        if (!text.trim() || !currentScanId) return;
+        
+        addMessageBubble('user', text);
+        showTypingIndicator();
+        
+        // Clear input
+        chatInput.value = '';
+        
+        const formData = new FormData();
+        formData.append('message', text);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        fetch(`/api/chat/${currentScanId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTypingIndicator();
+            if (data.success) {
+                addMessageBubble('assistant', data.message);
+            } else {
+                addMessageBubble('assistant', "I apologize, but I encountered an error processing your query. Please try again.");
+            }
+        })
+        .catch(error => {
+            hideTypingIndicator();
+            console.error('Chat error:', error);
+            addMessageBubble('assistant', "A network error occurred. Please verify your connection.");
         });
     }
 });

@@ -26,34 +26,77 @@
 
         <!-- Results Section -->
         <div id="resultsArea" class="hidden animate-fade-in" style="margin-top: 2rem;">
-            <div class="results-header">
-                <h3>Analysis Results</h3>
-                <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
-            </div>
+            <div class="app-split-pane">
+                
+                <!-- Left Pane: Scan and Segmentation Findings -->
+                <div class="pane-left">
+                    <div class="results-header">
+                        <h3>Analysis Results</h3>
+                        <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
+                    </div>
 
-            <div class="image-grid">
-                <div class="image-box">
-                    <h4>Original Scan</h4>
-                    <img id="origImage" src="" alt="Original Scan" class="result-img" style="max-height: 300px; object-fit: contain;">
-                </div>
-                <div class="image-box">
-                    <h4>Segmented Mask</h4>
-                    <img id="maskImage" src="" alt="Mask" class="result-img" style="max-height: 300px; object-fit: contain;">
-                </div>
-                <div class="image-box highlight-box">
-                    <h4>AI Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Annotated</span></h4>
-                    <img id="overlayImage" src="" alt="Overlay" class="result-img" style="max-height: 300px; object-fit: contain;">
-                </div>
-            </div>
+                    <div class="image-grid">
+                        <div class="image-box">
+                            <h4>Original Scan</h4>
+                            <img id="origImage" src="" alt="Original Scan" class="result-img" style="max-height: 240px; object-fit: contain;">
+                        </div>
+                        <div class="image-box">
+                            <h4>Segmented Mask</h4>
+                            <img id="maskImage" src="" alt="Mask" class="result-img" style="max-height: 240px; object-fit: contain;">
+                        </div>
+                        <div class="image-box highlight-box">
+                            <h4>AI Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Annotated</span></h4>
+                            <img id="overlayImage" src="" alt="Overlay" class="result-img" style="max-height: 240px; object-fit: contain;">
+                        </div>
+                    </div>
 
-            <div class="results-actions">
-                <button class="btn-primary-outline" id="resetBtn"><i class="ti ti-rotate"></i> Analyze Another Scan</button>
-                <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary"><i class="ti ti-download"></i> Download Overlay</a>
-            </div>
-            
-            <div class="explainable-ai">
-                <h4><i class="ti ti-sparkles"></i> Explainable AI Summary</h4>
-                <p id="explainText">The dual-mode physics pipeline has processed the image. Red highlights on the AI overlay indicate segmentations in the 15–35 Hounsfield Unit range (typical stroke cytotoxic edema). All findings must be correlation-verified.</p>
+                    <div class="results-actions" style="margin-top: 1.5rem;">
+                        <button class="btn-primary-outline" id="resetBtn"><i class="ti ti-rotate"></i> Analyze Another Scan</button>
+                        <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary"><i class="ti ti-download"></i> Download Overlay</a>
+                    </div>
+                    
+                    <div class="explainable-ai" style="margin-top: 1.5rem;">
+                        <h4><i class="ti ti-sparkles"></i> Explainable AI Summary</h4>
+                        <p id="explainText">The dual-mode physics pipeline has processed the image. Red highlights on the AI overlay indicate segmentations in the 15–35 Hounsfield Unit range (typical stroke cytotoxic edema). All findings must be correlation-verified.</p>
+                    </div>
+                </div>
+
+                <!-- Right Pane: MedAssist Chatbot Companion -->
+                <div class="pane-right">
+                    <div class="chatbot-card">
+                        <div class="chatbot-header">
+                            <div class="chatbot-avatar-wrapper">
+                                <div class="chatbot-avatar"><i class="ti ti-robot"></i></div>
+                                <span class="status-indicator online"></span>
+                            </div>
+                            <div class="chatbot-info">
+                                <h4>MedAssist AI</h4>
+                                <p>Empathetic Patient Companion</p>
+                            </div>
+                        </div>
+                        
+                        <div class="chatbot-messages" id="chatMessages">
+                            <!-- Dynamically loaded messages -->
+                        </div>
+                        
+                        <!-- Quick Question Tags -->
+                        <div class="chatbot-tags" id="chatTags">
+                            <span class="chat-tag" data-msg="Explain the scan findings in simple terms.">Explain Scan</span>
+                            <span class="chat-tag" data-msg="What does lesion load indicate?">What is Lesion Load?</span>
+                            <span class="chat-tag" data-msg="What doctor should I see next?">Specialist Referral</span>
+                            <span class="chat-tag" data-msg="Is this result an emergency?">Emergency Signs?</span>
+                        </div>
+                        
+                        <!-- Input field -->
+                        <div class="chatbot-input-wrapper">
+                            <input type="text" id="chatInput" placeholder="Ask MedAssist a question..." autocomplete="off">
+                            <button id="sendChatBtn" class="btn-chat-send" title="Send message">
+                                <i class="ti ti-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 

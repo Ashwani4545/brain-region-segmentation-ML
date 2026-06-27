@@ -15,5 +15,6 @@ urlpatterns = [
     path('settings/', views.settings_page, name='settings'),
     path('profile/', views.profile_page, name='profile'),
     path('api/predict/', views.predict_api, name='predict_api'),
+    path('api/chat/<int:scan_id>/', views.chat_api, name='chat_api'),
     path('api/scan/<int:scan_id>/delete/', views.delete_scan_api, name='delete_scan'),
 ]

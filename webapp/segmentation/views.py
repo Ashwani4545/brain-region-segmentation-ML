@@ -10,7 +10,7 @@ from django.db.models import Avg
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from .models import PatientScan
+from .models import PatientScan, ChatMessage
 
 # Allowed file extensions for upload validation
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.dcm'}
@@ -247,9 +247,10 @@ def predict_api(request):
         raw_confidence = 0.0
 
     # ── Save to Database ────────────────────────────────────────────────────
+    scan_id = None
     try:
         modality_str = 'NCCT' if ext == '.dcm' else 'Slice Image'
-        PatientScan.objects.create(
+        scan = PatientScan.objects.create(
             user=request.user if request.user.is_authenticated else None,
             scan_name=image_file.name,
             modality=modality_str,
@@ -259,15 +260,175 @@ def predict_api(request):
             confidence=raw_confidence,
             detected=result['detected']
         )
+        scan_id = scan.id
     except Exception as db_err:
         # Log error, but don't crash response if db write fails
         print(f"[Database Error] Could not log scan: {db_err}")
 
     return JsonResponse({
         'success':      True,
+        'scan_id':      scan_id,
         'original_url': original_url,
         'mask_url':     mask_url,
         'overlay_url':  overlay_url,
         'confidence':   result['confidence'],
         'detected':     result['detected'],
     })
+
+
+@csrf_exempt
+def chat_api(request, scan_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed.'})
+    
+    try:
+        scan = PatientScan.objects.get(id=scan_id)
+    except PatientScan.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Scan not found.'})
+        
+    user_msg_text = request.POST.get('message', '').strip()
+    if not user_msg_text:
+        return JsonResponse({'success': False, 'error': 'Empty message.'})
+        
+    # Simple emotion/sentiment check on user message
+    emotion_detected = None
+    anxious_keywords = ['worried', 'scared', 'afraid', 'dying', 'panic', 'cancer', 'stroke', 'serious', 'fear', 'emergency']
+    if any(kw in user_msg_text.lower() for kw in anxious_keywords):
+        emotion_detected = 'anxious'
+        
+    # Save user message to database
+    ChatMessage.objects.create(
+        scan=scan,
+        role='user',
+        message=user_msg_text,
+        emotion_detected=emotion_detected
+    )
+    
+    # Retrieve chat history (including newly saved user message)
+    history_objs = ChatMessage.objects.filter(scan=scan).order_by('timestamp')
+    
+    # Check if Anthropic API is configured
+    api_key = getattr(settings, 'ANTHROPIC_API_KEY', None)
+    
+    assistant_response = ""
+    
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            
+            # Format system prompt
+            system_prompt = (
+                "You are MedAssist, a compassionate AI healthcare companion on NeuroDetect AI. "
+                f"You have just analyzed the patient's Brain {scan.modality} report.\n"
+                f"Scan File: {scan.scan_name}\n"
+                f"Hypodense regions detected: {scan.detected}\n"
+                f"Lesion Load (swelling percentage of brain area): {scan.confidence}%\n\n"
+                "Guidelines:\n"
+                "1. Speak in simple, comforting, non-medical language.\n"
+                "2. Directly acknowledge patient anxiety and validate emotions.\n"
+                "3. NEVER give a definitive diagnosis. Reiterate that this is an AI research tool.\n"
+                "4. Always recommend consulting a qualified neurologist or radiologist.\n"
+                "5. Keep responses concise (under 3-4 paragraphs).\n"
+                "6. Never speculate beyond the scan details.\n"
+                "7. If severe distress is noted, recommend speaking to family or calling helpline services."
+            )
+            
+            # Format history for Anthropic message list API
+            messages = []
+            for h in history_objs:
+                messages.append({
+                    "role": h.role,
+                    "content": h.message
+                })
+                
+            # Call Claude
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=800,
+                system=system_prompt,
+                messages=messages
+            )
+            
+            # Extract content text
+            assistant_response = response.content[0].text
+            
+        except Exception as e:
+            # On API failure, fall back to mock
+            print(f"[Chat API Error] Anthropic call failed, falling back to mock: {e}")
+            assistant_response = get_mock_response(user_msg_text, scan)
+    else:
+        # Fall back to mock when key is not configured
+        assistant_response = get_mock_response(user_msg_text, scan)
+        
+    # Save assistant response to database
+    ChatMessage.objects.create(
+        scan=scan,
+        role='assistant',
+        message=assistant_response
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': assistant_response,
+        'emotion_detected': emotion_detected
+    })
+
+
+def get_mock_response(query, scan):
+    q = query.lower()
+    lesion_str = f"{scan.confidence:.2f}%"
+    detected_status = "hypodense regions have been identified" if scan.detected else "no significant hypodense regions were detected"
+    
+    # 1. Emergency detection
+    if any(w in q for w in ['emergency', 'dying', 'chest pain', 'numbness', 'drooping', 'stroke right now']):
+        return (
+            "I understand this is incredibly frightening, but please stay as calm as possible. If you or the patient are experiencing "
+            "active stroke symptoms—such as facial drooping, arm weakness, or speech difficulties (FAST)—please call emergency medical services "
+            "immediately (like 112 or 102/108 in India). Time is critical in these situations, and a hospital ER is the safest place to be."
+        )
+        
+    # 2. Lesion load / Swelling
+    if any(w in q for w in ['lesion', 'load', 'percentage', 'swelling', 'size']):
+        return (
+            f"The 'lesion load' of {lesion_str} indicates the portion of the brain's soft tissue area that shows decreased density "
+            f"(hypodensity) compared to normal tissue. On a CT scan, this is typically where cytotoxic edema (swelling) might be occurring. "
+            f"While {lesion_str} is the estimated region size, only a specialized neuroradiologist can confirm if this corresponds to an "
+            f"actual lesion or normal anatomical variation. I highly recommend taking this report to your doctor."
+        )
+        
+    # 3. What is stroke / hypodensity
+    if any(w in q for w in ['stroke', 'hypodense', 'hypodensity', 'infarct', 'ischemic']):
+        return (
+            "Hypodensity refers to areas on a Brain CT scan that appear darker than normal brain tissue. Darker regions can develop when "
+            "brain tissue absorbs water, which is a common early response to reduced blood flow (ischaemic changes or cytotoxic edema). "
+            "While the AI model flagged these areas, other conditions can also cause hypodensities. A neurologist will correlate this "
+            "with clinical symptoms and likely order a follow-up MRI to get a clearer picture."
+        )
+        
+    # 4. What doctor / specialist
+    if any(w in q for w in ['doctor', 'specialist', 'neurologist', 'radiologist', 'hospital', 'see']):
+        return (
+            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible. They are the medical specialists trained "
+            "to read brain scans and diagnose neurological conditions. When you see them, you should ask:\n"
+            "1. Does this hypodensity correspond to an acute ischemic change?\n"
+            "2. Should we perform a follow-up DWI-MRI scan?\n"
+            "3. Are there signs of edema or mass effect that require immediate treatment?"
+        )
+        
+    # 5. Anxiety reassurance
+    if any(w in q for w in ['worried', 'scared', 'afraid', 'panic', 'fear', 'anxious']):
+        return (
+            "It is completely normal to feel scared and anxious when looking at a brain report. Please remember that this AI output is "
+            "an academic research tool and not a final medical diagnosis. A positive flag simply means 'please look closer'. Many dark spots "
+            "on CT scans turn out to be completely benign or older, stable changes. Take a deep breath, and let's work on scheduling a "
+            "consultation with a specialist to review these findings together."
+        )
+        
+    # Default fallback greeting or Q&A response
+    return (
+        f"Regarding your query, let's review the scan findings: the AI model processed {scan.scan_name} and noted that {detected_status} "
+        f"with an estimated tissue involvement of {lesion_str}. Please consult a neurologist to correlate these findings with "
+        f"any clinical symptoms. Let me know if you would like me to explain what hypodensity means, recommend specialists, or generate "
+        f"questions you can ask your doctor."
+    )
