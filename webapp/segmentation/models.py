@@ -46,3 +46,15 @@ class PatientGuidance(models.Model):
     doctor_questions = models.JSONField()     # 5-8 consult questions
     specialist_routing = models.JSONField()   # specialty and referral tips
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PatientRiskProfile(models.Model):
+    scan = models.OneToOneField(PatientScan, on_delete=models.CASCADE, related_name='risk_profile')
+    cv_risk_score = models.FloatField()         # Cardiovascular risk percentage
+    cv_risk_grade = models.CharField(max_length=20)
+    diabetes_risk_score = models.FloatField()   # Diabetes risk percentage
+    diabetes_risk_grade = models.CharField(max_length=20)
+    stroke_risk_score = models.FloatField()     # Stroke risk percentage
+    stroke_risk_grade = models.CharField(max_length=20)
+    detailed_metrics = models.JSONField()       # age, BP, BMI, smoking status used
+    created_at = models.DateTimeField(auto_now_add=True)

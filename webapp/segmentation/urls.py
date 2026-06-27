@@ -17,4 +17,5 @@ urlpatterns = [
     path('api/predict/', views.predict_api, name='predict_api'),
     path('api/chat/<int:scan_id>/', views.chat_api, name='chat_api'),
     path('api/scan/<int:scan_id>/delete/', views.delete_scan_api, name='delete_scan'),
+    path('api/scan/<int:scan_id>/recalculate_risk/', views.recalculate_risk_api, name='recalculate_risk'),
 ]

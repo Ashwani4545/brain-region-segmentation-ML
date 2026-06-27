@@ -248,6 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Populate interactive RAG recovery tabs
                 populateGuidanceTabs(data.guidance);
 
+                // Populate predictive risk profiles
+                populateRiskProfiler(data.risk_profile);
+
                 resultsArea.classList.remove('hidden');
 
                 // Dynamic tags loading per modality
@@ -487,5 +490,98 @@ document.addEventListener('DOMContentLoaded', () => {
             li.style.marginBottom = '4px';
             questionsList.appendChild(li);
         });
+    }
+
+    // Setup Risk Profiler form handler
+    const riskOverrideForm = document.getElementById('riskOverrideForm');
+    if (riskOverrideForm) {
+        riskOverrideForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentScanId) return;
+            
+            const submitBtn = riskOverrideForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-sm" style="display: inline-block; width: 10px; height: 10px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 4px;"></span> Recalculating...`;
+            
+            const formData = new FormData(riskOverrideForm);
+            
+            fetch(`/api/scan/${currentScanId}/recalculate_risk/`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                if (data.success) {
+                    populateRiskProfiler(data.risk_profile);
+                } else {
+                    alert('Error recalculating risk profile: ' + data.error);
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                console.error('Recalculate error:', error);
+                alert('A network error occurred.');
+            });
+        });
+    }
+
+    function populateRiskProfiler(profile) {
+        if (!profile) return;
+        
+        // 1. Set form input default values from active profile data
+        const metrics = profile.detailed_metrics || {};
+        if (document.getElementById('riskAgeInput')) document.getElementById('riskAgeInput').value = metrics.age || 52;
+        if (document.getElementById('riskBpInput')) document.getElementById('riskBpInput').value = metrics.systolic_bp || 128;
+        if (document.getElementById('riskBmiInput')) document.getElementById('riskBmiInput').value = metrics.bmi || 24.2;
+        if (document.getElementById('riskSmokingInput')) document.getElementById('riskSmokingInput').value = metrics.smoking || 'No';
+        
+        // 2. Animate and colorize SVG Gauges
+        animateRiskGauge('cvGaugeStroke', 'cvRiskScoreText', 'cvRiskBadge', profile.cv_risk_score, profile.cv_risk_grade);
+        animateRiskGauge('dbGaugeStroke', 'dbRiskScoreText', 'dbRiskBadge', profile.diabetes_risk_score, profile.diabetes_risk_grade);
+        animateRiskGauge('strokeGaugeStroke', 'strokeRiskScoreText', 'strokeRiskBadge', profile.stroke_risk_score, profile.stroke_risk_grade);
+        
+        // 3. Populate Explanation Card
+        const cvTxt = `Cardiovascular risk is ${profile.cv_risk_grade} (${profile.cv_risk_score}%).`;
+        const dbTxt = `Diabetes Type-II risk is ${profile.diabetes_risk_grade} (${profile.diabetes_risk_score}%).`;
+        const stTxt = `Stroke risk is ${profile.stroke_risk_grade} (${profile.stroke_risk_score}%).`;
+        
+        document.getElementById('riskExplanationText').innerHTML = `
+            <strong style="color: var(--text-primary);">Clinical Profile Evaluation:</strong><br>
+            • ${cvTxt} based on age, blood pressure, and cholesterol markers.<br>
+            • ${dbTxt} reflecting blood glucose and body composition levels.<br>
+            • ${stTxt} incorporating CT imaging scans and vascular dynamics.<br><br>
+            <em style="font-size: 11px; color: var(--text-secondary);">Recalculate parameters on the left to test individual risk variables. All indicators are estimations for proactive monitoring and do not replace formal clinical assessment.</em>
+        `;
+    }
+
+    function animateRiskGauge(gaugeStrokeId, scoreTextId, badgeId, percent, grade) {
+        const strokePath = document.getElementById(gaugeStrokeId);
+        const scoreText = document.getElementById(scoreTextId);
+        const badge = document.getElementById(badgeId);
+        
+        if (!strokePath || !scoreText || !badge) return;
+        
+        // Circular perimeter has length 100 for path coordinates.
+        strokePath.setAttribute('stroke-dasharray', `${percent}, 100`);
+        scoreText.innerText = `${percent}%`;
+        
+        badge.innerText = grade;
+        badge.className = 'med-badge';
+        
+        const gr = grade.toLowerCase();
+        if (gr.includes('high') || gr.includes('danger')) {
+            strokePath.setAttribute('stroke', '#ef4444'); // red
+            badge.classList.add('med-badge-danger');
+        } else if (gr.includes('moderate') || gr.includes('intermediate') || gr.includes('borderline')) {
+            strokePath.setAttribute('stroke', '#f59e0b'); // orange
+            badge.classList.add('med-badge-warning');
+        } else {
+            strokePath.setAttribute('stroke', '#10b981'); // green
+            badge.classList.add('med-badge-success');
+        }
     }
 });

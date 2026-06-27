@@ -89,6 +89,9 @@
                             <button class="tab-btn" data-tab="doctor" style="padding: 10px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -2px;">
                                 <i class="ti ti-user-check" style="font-size: 14px;"></i> Doctor Guide
                             </button>
+                            <button class="tab-btn" data-tab="risk" style="padding: 10px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -2px;">
+                                <i class="ti ti-heart-rate-monitor" style="font-size: 14px;"></i> Risk Profiler
+                            </button>
                         </div>
                         
                         <div class="tab-content-container" style="padding: 1.5rem; background: var(--bg-surface); border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; min-height: 160px;">
@@ -157,6 +160,77 @@
                                         <ol id="doctorQuestionsList" style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); padding-left: 1.2rem; margin: 0;">
                                             <!-- Dynamic questions -->
                                         </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 5: Risk Profiler -->
+                            <div class="tab-pane hidden" id="tab-risk">
+                                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
+                                    <!-- Left Column: Recalculate Form -->
+                                    <form id="riskOverrideForm" style="background: #f9fafb; padding: 1rem; border-radius: 8px; border: 0.5px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px;">
+                                        <h5 style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 4px;"><i class="ti ti-edit"></i> Patient Parameters</h5>
+                                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                                            <label style="font-size: 10px; font-weight: 600; color: var(--text-secondary);">Age (years)</label>
+                                            <input type="number" id="riskAgeInput" name="age" value="52" min="1" max="120" style="padding: 6px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; outline: none; background: #fff;">
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                                            <label style="font-size: 10px; font-weight: 600; color: var(--text-secondary);">Systolic Blood Pressure (mmHg)</label>
+                                            <input type="number" id="riskBpInput" name="systolic_bp" value="128" min="60" max="250" style="padding: 6px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; outline: none; background: #fff;">
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                                            <label style="font-size: 10px; font-weight: 600; color: var(--text-secondary);">Body Mass Index (BMI)</label>
+                                            <input type="number" step="0.1" id="riskBmiInput" name="bmi" value="24.2" min="10" max="60" style="padding: 6px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; outline: none; background: #fff;">
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                                            <label style="font-size: 10px; font-weight: 600; color: var(--text-secondary);">Active Smoker?</label>
+                                            <select id="riskSmokingInput" name="smoking" style="padding: 6px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; outline: none; background: #fff;">
+                                                <option value="No">No</option>
+                                                <option value="Yes">Yes</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn-primary" style="padding: 8px; font-size: 11px; font-weight: 600; border-radius: 4px; width: 100%; text-align: center; margin-top: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;"><i class="ti ti-rotate-2"></i> Recalculate Risk</button>
+                                    </form>
+                                    
+                                    <!-- Right Column: Gauges & Analysis -->
+                                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                                        <div style="display: flex; justify-content: space-around; background: #fff; padding: 10px; border-radius: 8px; border: 0.5px solid #e5e7eb;">
+                                            <!-- Gauge 1: Cardiovascular -->
+                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 30%;">
+                                                <span style="font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-align: center; height: 32px; display: flex; align-items: center;">Cardiovascular</span>
+                                                <svg width="64" height="64" viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f3f4f6" stroke-width="2.5" />
+                                                    <path id="cvGaugeStroke" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" style="transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.8s;" />
+                                                </svg>
+                                                <div style="margin-top: -46px; margin-bottom: 22px; font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center;" id="cvRiskScoreText">0%</div>
+                                                <span class="med-badge" id="cvRiskBadge" style="font-size: 9px; padding: 2px 6px;">--</span>
+                                            </div>
+                                            <!-- Gauge 2: Diabetes -->
+                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 30%;">
+                                                <span style="font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-align: center; height: 32px; display: flex; align-items: center;">Diabetes Type-II</span>
+                                                <svg width="64" height="64" viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f3f4f6" stroke-width="2.5" />
+                                                    <path id="dbGaugeStroke" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" style="transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.8s;" />
+                                                </svg>
+                                                <div style="margin-top: -46px; margin-bottom: 22px; font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center;" id="dbRiskScoreText">0%</div>
+                                                <span class="med-badge" id="dbRiskBadge" style="font-size: 9px; padding: 2px 6px;">--</span>
+                                            </div>
+                                            <!-- Gauge 3: Stroke -->
+                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 30%;">
+                                                <span style="font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-align: center; height: 32px; display: flex; align-items: center;">Stroke Risk</span>
+                                                <svg width="64" height="64" viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f3f4f6" stroke-width="2.5" />
+                                                    <path id="strokeGaugeStroke" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" style="transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.8s;" />
+                                                </svg>
+                                                <div style="margin-top: -46px; margin-bottom: 22px; font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center;" id="strokeRiskScoreText">0%</div>
+                                                <span class="med-badge" id="strokeRiskBadge" style="font-size: 9px; padding: 2px 6px;">--</span>
+                                            </div>
+                                        </div>
+                                        <div style="background: rgba(79, 70, 229, 0.02); padding: 0.75rem 1rem; border-radius: 8px; border: 0.5px solid #e5e7eb;">
+                                            <p style="font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0;" id="riskExplanationText">
+                                                Risk grading estimates potential occurrences over 10 years (ASCVD) or physiological markers (Diabetes/Stroke). Verify demographics to calculate scores.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -271,9 +271,25 @@ def predict_api(request):
             doctor_questions=guidance_data.get('questions', []),
             specialist_routing=guidance_data.get('routing', {})
         )
+
+        # ── Generate & Save Risk Profile ────────────────────────────────────
+        from core_ml.risk_profiler import get_risk_profiler
+        profiler = get_risk_profiler()
+        risk_data = profiler.calculate_profile(scan)
+        
+        PatientRiskProfile.objects.create(
+            scan=scan,
+            cv_risk_score=risk_data['cv_risk_score'],
+            cv_risk_grade=risk_data['cv_risk_grade'],
+            diabetes_risk_score=risk_data['diabetes_risk_score'],
+            diabetes_risk_grade=risk_data['diabetes_risk_grade'],
+            stroke_risk_score=risk_data['stroke_risk_score'],
+            stroke_risk_grade=risk_data['stroke_risk_grade'],
+            detailed_metrics=risk_data['detailed_metrics']
+        )
     except Exception as db_err:
         # Log error, but don't crash response if db write fails
-        print(f"[Database Error] Could not log scan or guidance: {db_err}")
+        print(f"[Database Error] Could not log scan, guidance, or risk: {db_err}")
 
     return JsonResponse({
         'success':      True,
@@ -286,7 +302,8 @@ def predict_api(request):
         'detected':     result['detected'],
         'findings_text': result.get('findings_text', ''),
         'metrics':       result.get('metrics', []), # blood test parsed parameters
-        'guidance':      guidance_data
+        'guidance':      guidance_data,
+        'risk_profile':  risk_data
     })
 
 
@@ -366,6 +383,20 @@ def chat_api(request, scan_id):
             except Exception:
                 pass
 
+            # Query associated PatientRiskProfile from DB if it exists
+            risk_context = ""
+            try:
+                profile = scan.risk_profile
+                risk_context = (
+                    "Patient calculated risk profiles:\n"
+                    f"- Cardiovascular 10-year Risk: {profile.cv_risk_score}% ({profile.cv_risk_grade})\n"
+                    f"- Diabetes Type-II Risk: {profile.diabetes_risk_score}% ({profile.diabetes_risk_grade})\n"
+                    f"- Stroke Risk: {profile.stroke_risk_score}% ({profile.stroke_risk_grade})\n"
+                    f"- Parameters: age={profile.detailed_metrics.get('age')}, BP={profile.detailed_metrics.get('systolic_bp')} mmHg, BMI={profile.detailed_metrics.get('bmi')}, smoking={profile.detailed_metrics.get('smoking')}\n\n"
+                )
+            except Exception:
+                pass
+
             # Format system prompt
             system_prompt = (
                 "You are MedAssist, a compassionate AI healthcare companion on NeuroDetect AI. "
@@ -375,6 +406,7 @@ def chat_api(request, scan_id):
                 f"Telemetry Metric (Confidence/Percentage): {scan.confidence}%\n"
                 f"Raw Findings Details: {scan.notes or ''}\n\n"
                 f"{guidance_context}"
+                f"{risk_context}"
                 "Guidelines:\n"
                 "1. Speak in simple, comforting, non-medical language.\n"
                 "2. Directly acknowledge patient anxiety and validate emotions.\n"
@@ -561,3 +593,48 @@ def get_mock_response(query, scan):
         f"I highly recommend consulting a specialist to correlate this with clinical symptoms. Let me know if you would like me "
         f"to explain specific terms, recommend doctors, or generate consult questions."
     )
+
+
+@csrf_exempt
+def recalculate_risk_api(request, scan_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST method required'})
+        
+    try:
+        scan = PatientScan.objects.get(id=scan_id)
+    except PatientScan.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Scan not found'})
+        
+    # Read overrides from POST
+    overrides = {
+        'age': request.POST.get('age', 52),
+        'systolic_bp': request.POST.get('systolic_bp', 128),
+        'bmi': request.POST.get('bmi', 24.2),
+        'smoking': request.POST.get('smoking', 'No')
+    }
+    
+    try:
+        from core_ml.risk_profiler import get_risk_profiler
+        profiler = get_risk_profiler()
+        risk_data = profiler.calculate_profile(scan, overrides)
+        
+        # Update database record
+        PatientRiskProfile.objects.update_or_create(
+            scan=scan,
+            defaults={
+                'cv_risk_score': risk_data['cv_risk_score'],
+                'cv_risk_grade': risk_data['cv_risk_grade'],
+                'diabetes_risk_score': risk_data['diabetes_risk_score'],
+                'diabetes_risk_grade': risk_data['diabetes_risk_grade'],
+                'stroke_risk_score': risk_data['stroke_risk_score'],
+                'stroke_risk_grade': risk_data['stroke_risk_grade'],
+                'detailed_metrics': risk_data['detailed_metrics']
+            }
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'risk_profile': risk_data
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
