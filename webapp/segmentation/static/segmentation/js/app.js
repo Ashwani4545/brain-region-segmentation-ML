@@ -118,31 +118,139 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 currentScanId = data.scan_id;
                 
-                // Populate images
-                document.getElementById('origImage').src = data.original_url;
-                document.getElementById('maskImage').src = data.mask_url;
-                document.getElementById('overlayImage').src = data.overlay_url;
+                // Toggle display widgets based on modality
+                const imageContainer = document.getElementById('imageResultsContainer');
+                const bloodContainer = document.getElementById('bloodResultsContainer');
+                imageContainer.classList.add('hidden');
+                bloodContainer.classList.add('hidden');
+                
+                const labelOrig = document.getElementById('labelOrig');
+                const labelMask = document.getElementById('labelMask');
+                const labelOverlay = document.getElementById('labelOverlay');
+                const maskBox = document.getElementById('maskBox');
+                const overlayBox = document.getElementById('overlayBox');
+                
+                // Reset labels
+                labelOrig.innerText = "Original Scan";
+                labelMask.innerText = "Segmented Mask";
+                labelOverlay.innerHTML = `AI Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Annotated</span>`;
+                maskBox.classList.remove('hidden');
+                overlayBox.classList.remove('hidden');
+                
+                if (data.modality === 'BLOOD_TEST') {
+                    // Render blood table
+                    bloodContainer.classList.remove('hidden');
+                    const tbody = document.getElementById('bloodMetricsBody');
+                    tbody.innerHTML = '';
+                    
+                    data.metrics.forEach(m => {
+                        const tr = document.createElement('tr');
+                        let badgeClass = 'med-badge-success';
+                        if (m.status === 'Low') badgeClass = 'med-badge-warning';
+                        if (m.status === 'High') badgeClass = 'med-badge-danger';
+                        
+                        tr.innerHTML = `
+                            <td style="font-weight: 600;">${m.marker}</td>
+                            <td>${m.value} ${m.unit}</td>
+                            <td>${m.min} - ${m.max} ${m.unit}</td>
+                            <td><span class="med-badge ${badgeClass}">${m.status}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    // Render image grid
+                    imageContainer.classList.remove('hidden');
+                    
+                    if (data.modality === 'CXR') {
+                        labelOrig.innerText = "Original X-Ray";
+                        labelMask.innerText = "Segmented Consolidation";
+                        labelOverlay.innerHTML = `Chest Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Lobe Annotation</span>`;
+                    } else if (data.modality === 'ECG') {
+                        labelOrig.innerText = "Original ECG Trace";
+                        labelMask.innerText = "Extracted Signal Line";
+                        labelOverlay.innerHTML = `Waveform Analysis <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">R-Peak Detections</span>`;
+                    }
+                    
+                    document.getElementById('origImage').src = data.original_url;
+                    document.getElementById('maskImage').src = data.mask_url;
+                    document.getElementById('overlayImage').src = data.overlay_url;
+                    
+                    document.getElementById('downloadBtn').href = data.overlay_url;
+                }
                 
                 // Populate confidence badge
                 const badge = document.getElementById('confidenceBadge');
                 badge.innerText = `Confidence: ${data.confidence}`;
                 
                 if (data.detected) {
-                    badge.style.color = '#ef4444'; // Red showing danger/finding
+                    badge.style.color = '#ef4444'; // Red showing danger
                     badge.style.borderColor = 'rgba(239, 68, 68, 0.2)';
                     badge.style.background = 'rgba(239, 68, 68, 0.1)';
-                    document.getElementById('explainText').innerText = `Anomaly Detected. The system detected hypodense regions indicating possible stroke-affected areas. Confidence level: ${data.confidence}. See overlay for exact visual localization.`;
+                    
+                    if (data.modality === 'BLOOD_TEST') {
+                        document.getElementById('explainText').innerText = `Anomaly Detected. The blood panel indicates parameters that fall outside standard physiological reference ranges. Findings: ${data.findings_text}`;
+                    } else if (data.modality === 'CXR') {
+                        document.getElementById('explainText').innerText = `Anomaly Detected. The chest X-ray indicates consolidation or cardiovascular silhouettes. Findings: ${data.findings_text}`;
+                    } else if (data.modality === 'ECG') {
+                        document.getElementById('explainText').innerText = `Anomaly Detected. The ECG trace indicates heart rate or rhythm variances. Findings: ${data.findings_text}`;
+                    } else {
+                        document.getElementById('explainText').innerText = `Anomaly Detected. The system detected hypodense regions indicating possible stroke-affected areas. Confidence level: ${data.confidence}. See overlay for exact visual localization.`;
+                    }
                 } else {
                     badge.style.color = '#10b981'; // Green showing clean
                     badge.style.borderColor = 'rgba(16, 185, 129, 0.2)';
                     badge.style.background = 'rgba(16, 185, 129, 0.1)';
-                    document.getElementById('explainText').innerText = `No Analysis Findings. The model did not detect significant hypodense regions in this scan slice.`;
+                    
+                    if (data.modality === 'BLOOD_TEST') {
+                        document.getElementById('explainText').innerText = `No Analysis Findings. All blood test metrics are within reference ranges.`;
+                    } else {
+                        document.getElementById('explainText').innerText = `No Analysis Findings. The model did not detect significant anomalies in this scan slice.`;
+                    }
                 }
-                
-                // Update download link
-                document.getElementById('downloadBtn').href = data.overlay_url;
 
                 resultsArea.classList.remove('hidden');
+
+                // Dynamic tags loading per modality
+                const tagsContainer = document.getElementById('chatTags');
+                if (data.modality === 'BLOOD_TEST') {
+                    tagsContainer.innerHTML = `
+                        <span class="chat-tag" data-msg="Explain what low hemoglobin means.">Low Hemoglobin?</span>
+                        <span class="chat-tag" data-msg="What are the implications of high fasting glucose?">High Blood Glucose?</span>
+                        <span class="chat-tag" data-msg="What general doctor should I see to review these lab results?">Which Doctor?</span>
+                        <span class="chat-tag" data-msg="Are there standard dietary changes for high cholesterol?">Diet Tips</span>
+                    `;
+                } else if (data.modality === 'CXR') {
+                    tagsContainer.innerHTML = `
+                        <span class="chat-tag" data-msg="What is lung consolidation/opacity?">Lung Opacity?</span>
+                        <span class="chat-tag" data-msg="What does an enlarged heart CTR mean?">Enlarged Heart?</span>
+                        <span class="chat-tag" data-msg="What doctor should I consult for these lung opacities?">Consult Specialist</span>
+                        <span class="chat-tag" data-msg="Is lung consolidation an emergency?">Emergency signs?</span>
+                    `;
+                } else if (data.modality === 'ECG') {
+                    tagsContainer.innerHTML = `
+                        <span class="chat-tag" data-msg="Explain my Heart Rate BPM results.">Heart Rate BPM?</span>
+                        <span class="chat-tag" data-msg="What does an arrhythmia or irregular R-R mean?">Arrhythmia?</span>
+                        <span class="chat-tag" data-msg="What cardiologist should I consult?">Consult Cardiologist</span>
+                        <span class="chat-tag" data-msg="Is an irregular ECG tracing dangerous?">Is it dangerous?</span>
+                    `;
+                } else {
+                    tagsContainer.innerHTML = `
+                        <span class="chat-tag" data-msg="Explain the scan findings in simple terms.">Explain Scan</span>
+                        <span class="chat-tag" data-msg="What does lesion load indicate?">What is Lesion Load?</span>
+                        <span class="chat-tag" data-msg="What doctor should I see next?">Specialist Referral</span>
+                        <span class="chat-tag" data-msg="Is this result an emergency?">Emergency Signs?</span>
+                    `;
+                }
+                
+                // Re-bind events to the new tags
+                document.querySelectorAll('.chat-tag').forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const msg = this.getAttribute('data-msg');
+                        if (msg) {
+                            sendChatMessage(msg);
+                        }
+                    });
+                });
 
                 // Clear old chat messages and disable/enable controls
                 const chatMessages = document.getElementById('chatMessages');
@@ -169,9 +277,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function triggerWelcomeMessage(data) {
+        let modalityName = "Brain CT";
+        if (data.modality === 'CXR') modalityName = "Chest X-Ray";
+        if (data.modality === 'ECG') modalityName = "ECG Waveform";
+        if (data.modality === 'BLOOD_TEST') modalityName = "Blood Panel";
+        
         const msg = data.detected 
-            ? `Hello, I am MedAssist, your compassionate care companion. I see that the AI analysis flagged some hypodense regions (confidence: ${data.confidence}). I understand this can be concerning or cause anxiety. Please know I am here to help explain what these terms mean and guide you. How are you feeling right now?`
-            : `Hello, I am MedAssist, your compassionate care companion. The scan has been processed and did not show significant hypodensities (confidence: ${data.confidence}). How can I help you today?`;
+            ? `Hello, I am MedAssist, your compassionate care companion. I have reviewed your ${modalityName} results. The analysis noted some anomalies (${data.findings_text}). I understand this can cause anxiety, but please know I am here to help explain what these results mean in simple terms. How can I support you right now?`
+            : `Hello, I am MedAssist, your compassionate care companion. I have reviewed your ${modalityName} report. The analysis did not flag any significant anomalies (confidence: ${data.confidence}). I am here if you have any questions or would like details on any of these parameters. What would you like to discuss?`;
             
         addMessageBubble('assistant', msg);
     }

@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from .models import PatientScan, ChatMessage
 
 # Allowed file extensions for upload validation
-ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.dcm'}
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.dcm', '.pdf'}
 MAX_UPLOAD_MB = 20
 
 def landing_page(request):
@@ -191,7 +191,7 @@ def predict_api(request):
     if ext not in ALLOWED_EXTENSIONS:
         return JsonResponse({
             'success': False,
-            'error': f'Unsupported file type "{ext}". Please upload JPG, PNG, or DICOM.'
+            'error': f'Unsupported file type "{ext}". Please upload JPG, PNG, DICOM, or PDF.'
         })
 
     if image_file.size > MAX_UPLOAD_MB * 1024 * 1024:
@@ -212,33 +212,28 @@ def predict_api(request):
     # ── Build correct media URL manually (Fix #5) ───────────────────────────
     original_url = settings.MEDIA_URL + 'uploads/' + saved_name
 
-    # ── Run inference ────────────────────────────────────────────────────────
+    # ── Run Ingestion & Analysis Router ──────────────────────────────────────
     out_dir = os.path.join(settings.MEDIA_ROOT, 'results')
     os.makedirs(out_dir, exist_ok=True)
 
     try:
-        from core_ml.inference_service import get_inference_service
-        service = get_inference_service()
+        from core_ml.ingestion import get_ingestion_service
+        ingestion = get_ingestion_service()
         
-        # Load custom thresholds from session
-        hu_lo = float(request.session.get('hu_lo', 15.0))
-        hu_hi = float(request.session.get('hu_hi', 35.0))
-        min_area_dicom = int(request.session.get('min_area_dicom', 50))
-        min_area_image = int(request.session.get('min_area_image', 30))
-        
-        result = service.process_image(
-            input_path, 
-            out_dir,
-            hu_lo=hu_lo,
-            hu_hi=hu_hi,
-            min_area_dicom=min_area_dicom,
-            min_area_image=min_area_image
-        )
+        # Route file to correct analyzer (Brain CT, Chest X-ray, ECG, or Blood Test)
+        routed = ingestion.route_file(input_path, out_dir)
+        modality = routed['modality']
+        result = routed['result']
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-    mask_url    = settings.MEDIA_URL + 'results/' + result['mask_filename']
-    overlay_url = settings.MEDIA_URL + 'results/' + result['overlay_filename']
+    # Determine mask and overlay URLs
+    if modality == 'BLOOD_TEST':
+        mask_url = ""
+        overlay_url = ""
+    else:
+        mask_url    = settings.MEDIA_URL + 'results/' + result['mask_filename']
+        overlay_url = settings.MEDIA_URL + 'results/' + result['overlay_filename']
 
     # Convert confidence string (e.g. "36.20%") to float for database storage
     try:
@@ -249,16 +244,16 @@ def predict_api(request):
     # ── Save to Database ────────────────────────────────────────────────────
     scan_id = None
     try:
-        modality_str = 'NCCT' if ext == '.dcm' else 'Slice Image'
         scan = PatientScan.objects.create(
             user=request.user if request.user.is_authenticated else None,
             scan_name=image_file.name,
-            modality=modality_str,
+            modality=modality,
             original_image=original_url,
             mask_image=mask_url,
             overlay_image=overlay_url,
             confidence=raw_confidence,
-            detected=result['detected']
+            detected=result['detected'],
+            notes=result.get('findings_text', '') # Store raw clinical findings in notes
         )
         scan_id = scan.id
     except Exception as db_err:
@@ -268,11 +263,14 @@ def predict_api(request):
     return JsonResponse({
         'success':      True,
         'scan_id':      scan_id,
+        'modality':     modality,
         'original_url': original_url,
         'mask_url':     mask_url,
         'overlay_url':  overlay_url,
         'confidence':   result['confidence'],
         'detected':     result['detected'],
+        'findings_text': result.get('findings_text', ''),
+        'metrics':       result.get('metrics', []) # blood test parsed parameters
     })
 
 
@@ -317,21 +315,43 @@ def chat_api(request, scan_id):
             import anthropic
             client = anthropic.Anthropic(api_key=api_key)
             
+            # Determine specialist, findings label, and custom guidelines based on modality
+            specialist = "neurologist"
+            findings_label = "Hypodense regions"
+            extra_instructions = ""
+            
+            if scan.modality == 'CXR':
+                specialist = "pulmonologist"
+                findings_label = "Lung anomalies / consolidation"
+                extra_instructions = "Explain chest X-ray findings. Guide the patient regarding respiratory safety and symptoms like cough or shortness of breath."
+            elif scan.modality == 'ECG':
+                specialist = "cardiologist"
+                findings_label = "Heart rhythm abnormalities"
+                extra_instructions = "Explain Heart Rate (BPM) and standard waveform traces, and warn about symptoms like chest pain."
+            elif scan.modality == 'BLOOD_TEST':
+                specialist = "general physician"
+                findings_label = "Out-of-range lab metrics"
+                extra_instructions = "Help interpret metabolic, hematology, or sugar levels, and suggest standard diet tips."
+            else:
+                extra_instructions = "Explain brain CT scans. Warn about stroke signs like facial drooping, arm weakness, or slurred speech."
+                
             # Format system prompt
             system_prompt = (
                 "You are MedAssist, a compassionate AI healthcare companion on NeuroDetect AI. "
-                f"You have just analyzed the patient's Brain {scan.modality} report.\n"
+                f"You have just analyzed the patient's {scan.modality} report.\n"
                 f"Scan File: {scan.scan_name}\n"
-                f"Hypodense regions detected: {scan.detected}\n"
-                f"Lesion Load (swelling percentage of brain area): {scan.confidence}%\n\n"
+                f"Anomalies detected ({findings_label}): {scan.detected}\n"
+                f"Telemetry Metric (Confidence/Percentage): {scan.confidence}%\n"
+                f"Raw Findings Details: {scan.notes or ''}\n\n"
                 "Guidelines:\n"
                 "1. Speak in simple, comforting, non-medical language.\n"
                 "2. Directly acknowledge patient anxiety and validate emotions.\n"
                 "3. NEVER give a definitive diagnosis. Reiterate that this is an AI research tool.\n"
-                "4. Always recommend consulting a qualified neurologist or radiologist.\n"
+                f"4. Always recommend consulting a qualified {specialist}.\n"
                 "5. Keep responses concise (under 3-4 paragraphs).\n"
-                "6. Never speculate beyond the scan details.\n"
-                "7. If severe distress is noted, recommend speaking to family or calling helpline services."
+                "6. Never speculate beyond the provided details.\n"
+                f"7. {extra_instructions}\n"
+                "8. If severe distress is noted, recommend speaking to family or calling emergency medical services."
             )
             
             # Format history for Anthropic message list API
@@ -377,58 +397,135 @@ def chat_api(request, scan_id):
 
 def get_mock_response(query, scan):
     q = query.lower()
-    lesion_str = f"{scan.confidence:.2f}%"
-    detected_status = "hypodense regions have been identified" if scan.detected else "no significant hypodense regions were detected"
+    m = scan.modality
+    val_str = f"{scan.confidence:.2f}%"
+    detected_status = "anomalies have been identified" if scan.detected else "no significant anomalies were detected"
     
-    # 1. Emergency detection
-    if any(w in q for w in ['emergency', 'dying', 'chest pain', 'numbness', 'drooping', 'stroke right now']):
-        return (
-            "I understand this is incredibly frightening, but please stay as calm as possible. If you or the patient are experiencing "
-            "active stroke symptoms—such as facial drooping, arm weakness, or speech difficulties (FAST)—please call emergency medical services "
-            "immediately (like 112 or 102/108 in India). Time is critical in these situations, and a hospital ER is the safest place to be."
-        )
-        
-    # 2. Lesion load / Swelling
-    if any(w in q for w in ['lesion', 'load', 'percentage', 'swelling', 'size']):
-        return (
-            f"The 'lesion load' of {lesion_str} indicates the portion of the brain's soft tissue area that shows decreased density "
-            f"(hypodensity) compared to normal tissue. On a CT scan, this is typically where cytotoxic edema (swelling) might be occurring. "
-            f"While {lesion_str} is the estimated region size, only a specialized neuroradiologist can confirm if this corresponds to an "
-            f"actual lesion or normal anatomical variation. I highly recommend taking this report to your doctor."
-        )
-        
-    # 3. What is stroke / hypodensity
-    if any(w in q for w in ['stroke', 'hypodense', 'hypodensity', 'infarct', 'ischemic']):
-        return (
-            "Hypodensity refers to areas on a Brain CT scan that appear darker than normal brain tissue. Darker regions can develop when "
-            "brain tissue absorbs water, which is a common early response to reduced blood flow (ischaemic changes or cytotoxic edema). "
-            "While the AI model flagged these areas, other conditions can also cause hypodensities. A neurologist will correlate this "
-            "with clinical symptoms and likely order a follow-up MRI to get a clearer picture."
-        )
-        
-    # 4. What doctor / specialist
-    if any(w in q for w in ['doctor', 'specialist', 'neurologist', 'radiologist', 'hospital', 'see']):
-        return (
-            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible. They are the medical specialists trained "
-            "to read brain scans and diagnose neurological conditions. When you see them, you should ask:\n"
-            "1. Does this hypodensity correspond to an acute ischemic change?\n"
-            "2. Should we perform a follow-up DWI-MRI scan?\n"
-            "3. Are there signs of edema or mass effect that require immediate treatment?"
-        )
-        
-    # 5. Anxiety reassurance
+    # Common Emergency check
+    if any(w in q for w in ['emergency', 'dying', 'chest pain', 'severe pain', 'numbness', 'drooping', 'stroke right now']):
+        if m == 'ECG' or m == 'CXR':
+            return (
+                "Please stay calm but act immediately. If you or the patient are experiencing chest pain, severe shortness of breath, "
+                "or radiative left-arm numbness, please call emergency services (like 112 or 102/108 in India, or 911) immediately. "
+                "These symptoms require instant evaluation in a hospital emergency room."
+            )
+        elif m == 'CT':
+            return (
+                "If you or the patient are experiencing active stroke symptoms—such as facial drooping, arm weakness, or speech difficulties (FAST)—"
+                "please call emergency medical services immediately. Time is critical, and a hospital ER is the safest place to be."
+            )
+        else:
+            return (
+                "If you are experiencing severe, sudden symptoms, please contact emergency services immediately. An AI tool cannot "
+                "evaluate acute or life-threatening crises."
+            )
+            
+    # Modality-specific mock QA
+    if m == 'CT':
+        if any(w in q for w in ['lesion', 'load', 'percentage', 'swelling', 'size']):
+            return (
+                f"The 'lesion load' of {val_str} indicates the portion of the brain's soft tissue area that shows decreased density "
+                f"(hypodensity) compared to normal tissue. On a CT scan, this is typically where cytotoxic edema (swelling) might be occurring. "
+                f"While {val_str} is the estimated region size, only a specialized neuroradiologist can confirm if this corresponds to an "
+                f"actual lesion or normal anatomical variation. I highly recommend taking this report to your doctor."
+            )
+        if any(w in q for w in ['stroke', 'hypodense', 'hypodensity', 'infarct', 'ischemic']):
+            return (
+                "Hypodensity refers to areas on a Brain CT scan that appear darker than normal brain tissue. Darker regions can develop when "
+                "brain tissue absorbs water, which is a common early response to reduced blood flow (ischaemic changes or cytotoxic edema). "
+                "While the AI model flagged these areas, other conditions can also cause hypodensities. A neurologist will correlate this "
+                "with clinical symptoms and likely order a follow-up MRI to get a clearer picture."
+            )
+        if any(w in q for w in ['doctor', 'specialist', 'neurologist', 'radiologist', 'hospital', 'see']):
+            return (
+                "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible. They are the medical specialists trained "
+                "to read brain scans and diagnose neurological conditions. When you see them, you should ask:\n"
+                "1. Does this hypodensity correspond to an acute ischemic change?\n"
+                "2. Should we perform a follow-up DWI-MRI scan?\n"
+                "3. Are there signs of edema or mass effect that require immediate treatment?"
+            )
+            
+    elif m == 'CXR':
+        if any(w in q for w in ['lung', 'pneumonia', 'consolidation', 'opacity', 'fluid']):
+            return (
+                "In a Chest X-ray, normally black regions (air-filled lungs) that appear white or opaque indicate 'consolidation' or fluid accumulation. "
+                "This is a common marker for pneumonia, infections, or inflammation. The AI model checks for these densities. "
+                "If opacity is found, a pulmonologist will correlate it with symptoms like fever, cough, and oxygen levels to diagnose."
+            )
+        if any(w in q for w in ['heart', 'cardiomegaly', 'enlarged', 'ctr', 'ratio']):
+            return (
+                f"Your Cardiothoracic Ratio (CTR) was calculated. A ratio greater than 0.50 (50%) indicates 'cardiomegaly' or an "
+                f"enlarged heart silhouette. This can be caused by chronic high blood pressure, valve conditions, or heart failure. "
+                f"A cardiologist can confirm this with a simple echocardiogram."
+            )
+        if any(w in q for w in ['doctor', 'specialist', 'pulmonologist', 'cardiologist', 'see']):
+            return (
+                "You should consult a **Pulmonologist** (for lung opacities) or a **Cardiologist** (for heart shadow concerns). "
+                "Important questions to ask them include:\n"
+                "1. Does this consolidation point to bacterial pneumonia or another source?\n"
+                "2. Do I need an echo to evaluate the cardiomegaly?\n"
+                "3. Should we prescribe antibiotics or order a chest CT for higher resolution?"
+            )
+            
+    elif m == 'ECG':
+        if any(w in q for w in ['rate', 'bpm', 'heartbeat', 'tachycardia', 'bradycardia']):
+            return (
+                f"Your estimated heart rate is {scan.confidence} BPM. A resting rate above 100 BPM is classified as tachycardia (fast heart rate), "
+                f"while a resting rate below 60 BPM is bradycardia (slow heart rate). Factors like anxiety, dehydration, medications, or "
+                f"rhythm disturbances can alter BPM. A cardiologist will evaluate if this heartbeat represents a normal sinus rhythm."
+            )
+        if any(w in q for w in ['rhythm', 'arrhythmia', 'irregular', 'peak', 'pulse']):
+            return (
+                "Rhythms are irregular when the time interval between consecutive heartbeat peaks (R-R intervals) varies. "
+                "This can indicate sinus arrhythmia (harmless variation with breathing), premature beats (PVCs), or conditions "
+                "like atrial fibrillation. A cardiologist will verify this with a 12-lead ECG or a 24-hour Holter monitor."
+            )
+        if any(w in q for w in ['doctor', 'specialist', 'cardiologist', 'see']):
+            return (
+                "You should consult a **Cardiologist**. They are the heart specialists. Key questions to ask include:\n"
+                "1. Does this tracing show signs of ischemia, blockages, or arrhythmia?\n"
+                "2. Do I need a 24-hour Holter monitor or stress test?\n"
+                "3. What lifestyle adjustments or medications do you recommend for this rhythm?"
+            )
+            
+    elif m == 'BLOOD_TEST':
+        if any(w in q for w in ['metric', 'range', 'low', 'high', 'out', 'normal']):
+            return (
+                "Out-of-range lab metrics indicate values that fall below the minimum or above the maximum bounds defined for healthy reference groups. "
+                "For example, low hemoglobin suggests anemia, while high fasting glucose indicates hyperglycemia. "
+                "A physician will evaluate these numbers together with your hydration level, diet, and clinical history."
+            )
+        if any(w in q for w in ['sugar', 'glucose', 'diabetes', 'sweet', 'carb']):
+            return (
+                "Glucose measures the sugar concentration in your blood. Fasting values above 100 mg/dL suggest pre-diabetes, and values "
+                "above 126 mg/dL suggest diabetes. You should consult a physician for diagnostic confirmation and discuss a diet low in "
+                "refined carbohydrates."
+            )
+        if any(w in q for w in ['hemoglobin', 'hb', 'anemia', 'blood', 'iron']):
+            return (
+                "Hemoglobin is the iron-rich protein in red blood cells that carries oxygen to your body's tissues. Values below 12.0 g/dL "
+                "suggest anemia, which can cause fatigue, weakness, or cold hands. A physician can check if this is iron-deficiency anemia "
+                "and recommend dietary changes or iron supplements."
+            )
+        if any(w in q for w in ['doctor', 'specialist', 'physician', 'see']):
+            return (
+                "You should consult a **General Physician** or **Endocrinologist**. Key questions to ask them:\n"
+                "1. Do these out-of-range parameters require medical treatment or simple dietary changes?\n"
+                "2. Should we repeat this blood draw to verify levels?\n"
+                "3. Do I need additional checks, like HbA1c for glucose or ferritin for iron?"
+            )
+
+    # General / Fallback reassurance QA
     if any(w in q for w in ['worried', 'scared', 'afraid', 'panic', 'fear', 'anxious']):
         return (
-            "It is completely normal to feel scared and anxious when looking at a brain report. Please remember that this AI output is "
-            "an academic research tool and not a final medical diagnosis. A positive flag simply means 'please look closer'. Many dark spots "
-            "on CT scans turn out to be completely benign or older, stable changes. Take a deep breath, and let's work on scheduling a "
-            "consultation with a specialist to review these findings together."
+            "It is completely normal to feel worried when reviewing clinical results. Please remember that this AI analysis "
+            "is a research tool and not a final medical diagnosis. A flag simply suggests 'please look closer'. Many flags turn out to "
+            "be stable, benign, or normal variations. Take a deep breath and let's work on scheduling a professional review with a doctor."
         )
-        
-    # Default fallback greeting or Q&A response
+
+    # Default fallback greeting
     return (
-        f"Regarding your query, let's review the scan findings: the AI model processed {scan.scan_name} and noted that {detected_status} "
-        f"with an estimated tissue involvement of {lesion_str}. Please consult a neurologist to correlate these findings with "
-        f"any clinical symptoms. Let me know if you would like me to explain what hypodensity means, recommend specialists, or generate "
-        f"questions you can ask your doctor."
+        f"Regarding your query on this {m} report: the AI router has analyzed {scan.scan_name} and noted that {detected_status}. "
+        f"I highly recommend consulting a specialist to correlate this with clinical symptoms. Let me know if you would like me "
+        f"to explain specific terms, recommend doctors, or generate consult questions."
     )

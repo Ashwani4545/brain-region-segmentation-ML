@@ -7,21 +7,21 @@
 {% block content %}
 <main class="app-container">
     <div class="glass-panel" style="padding: 2.5rem; margin-bottom: 2rem;">
-        <h2 class="panel-title" style="margin-bottom: 1.5rem;"><i class="ti ti-scan" style="color: var(--accent-primary); vertical-align: -2px; margin-right: 5px;"></i> Upload NCCT Scan</h2>
+        <h2 class="panel-title" style="margin-bottom: 1.5rem;"><i class="ti ti-scan" style="color: var(--accent-primary); vertical-align: -2px; margin-right: 5px;"></i> Upload Clinical Report / Scan</h2>
         
         <div id="uploadArea" class="upload-area">
             <div class="upload-content">
                 <i class="ti ti-cloud-upload" style="font-size: 48px; color: var(--accent-primary);"></i>
-                <p style="font-size: 14px; font-weight: 500; color: var(--text-primary);">Drag and drop scan image here or <strong style="color: var(--accent-primary); text-decoration: underline;">Click to browse</strong></p>
-                <p class="text-sm">Supported clinical formats: JPG, PNG, DICOM (.dcm)</p>
+                <p style="font-size: 14px; font-weight: 500; color: var(--text-primary);">Drag and drop medical report or scan here or <strong style="color: var(--accent-primary); text-decoration: underline;">Click to browse</strong></p>
+                <p class="text-sm">Supported clinical formats: JPG, PNG, DICOM (.dcm), PDF (.pdf)</p>
             </div>
-            <input type="file" id="fileInput" accept="image/png, image/jpeg, .dcm" style="display: none;">
+            <input type="file" id="fileInput" accept="image/png, image/jpeg, .dcm, .pdf" style="display: none;">
         </div>
 
         <!-- Loading State -->
         <div id="loadingState" class="hidden">
             <div class="spinner"></div>
-            <p style="font-size: 13.5px; font-weight: 500; color: var(--accent-primary);">Analyzing brain CT slices & Hounsfield mapping...</p>
+            <p style="font-size: 13.5px; font-weight: 500; color: var(--accent-primary);">Analyzing clinical metrics, OCR mapping & Hounsfield thresholding...</p>
         </div>
 
         <!-- Results Section -->
@@ -35,24 +35,43 @@
                         <div id="confidenceBadge" class="confidence-badge">Confidence: --</div>
                     </div>
 
-                    <div class="image-grid">
+                    <!-- Images display grid (CT/XRay/ECG) -->
+                    <div id="imageResultsContainer" class="image-grid">
                         <div class="image-box">
-                            <h4>Original Scan</h4>
+                            <h4 id="labelOrig">Original Scan</h4>
                             <img id="origImage" src="" alt="Original Scan" class="result-img" style="max-height: 240px; object-fit: contain;">
                         </div>
-                        <div class="image-box">
-                            <h4>Segmented Mask</h4>
+                        <div id="maskBox" class="image-box">
+                            <h4 id="labelMask">Segmented Mask</h4>
                             <img id="maskImage" src="" alt="Mask" class="result-img" style="max-height: 240px; object-fit: contain;">
                         </div>
-                        <div class="image-box highlight-box">
-                            <h4>AI Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Annotated</span></h4>
+                        <div id="overlayBox" class="image-box highlight-box">
+                            <h4 id="labelOverlay">AI Overlay <span class="med-badge med-badge-success" style="vertical-align: 1px; margin-left: 5px;">Annotated</span></h4>
                             <img id="overlayImage" src="" alt="Overlay" class="result-img" style="max-height: 240px; object-fit: contain;">
                         </div>
                     </div>
 
+                    <!-- Blood Test Parameters Table -->
+                    <div id="bloodResultsContainer" class="hidden" style="margin-top: 0.5rem; margin-bottom: 1.5rem;">
+                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px;"><i class="ti ti-table" style="color: var(--accent-primary); vertical-align: -2px;"></i> Parsed Hematology & Chemistry Panel</h4>
+                        <table class="out-table" style="margin-top: 0; border: 0.5px solid #e5e7eb; border-radius: 8px;">
+                            <thead>
+                                <tr>
+                                    <th>Marker</th>
+                                    <th>Observed Value</th>
+                                    <th>Reference Range</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bloodMetricsBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
                     <div class="results-actions" style="margin-top: 1.5rem;">
                         <button class="btn-primary-outline" id="resetBtn"><i class="ti ti-rotate"></i> Analyze Another Scan</button>
-                        <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary"><i class="ti ti-download"></i> Download Overlay</a>
+                        <a id="downloadBtn" href="#" download="segmentation_result.png" class="btn-primary"><i class="ti ti-download"></i> Download Output</a>
                     </div>
                     
                     <div class="explainable-ai" style="margin-top: 1.5rem;">
