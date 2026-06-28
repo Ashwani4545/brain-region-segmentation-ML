@@ -281,6 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Populate telehealth referral specialists
                 updateTelehealthReferrals(data.specialists);
 
+                // Load patient history timeline
+                updatePatientHistoryTimeline();
+
                 resultsArea.classList.remove('hidden');
 
                 // Dynamic tags loading per modality
@@ -423,6 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const formData = new FormData();
         formData.append('message', text);
+        const langSelect = document.getElementById('chatLanguageSelect');
+        const lang = langSelect ? langSelect.value : 'English';
+        formData.append('language', lang);
         
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
         formData.append('csrfmiddlewaretoken', csrfToken);
@@ -876,6 +882,24 @@ document.addEventListener('DOMContentLoaded', () => {
             li.innerText = name;
             list.appendChild(li);
         });
+
+        // Setup Practo telemedicine CTA
+        const practoContainer = document.getElementById('practoLinkContainer');
+        const practoBtn = document.getElementById('practoLinkBtn');
+        if (practoContainer && practoBtn) {
+            practoContainer.classList.remove('hidden');
+            let querySpecialist = "doctor";
+            if (principalDoc.toLowerCase().includes('neurology') || principalDoc.toLowerCase().includes('sharma') || principalDoc.toLowerCase().includes('patel')) {
+                querySpecialist = "neurologist";
+            } else if (principalDoc.toLowerCase().includes('pulmonology') || principalDoc.toLowerCase().includes('mehta') || principalDoc.toLowerCase().includes('verma')) {
+                querySpecialist = "pulmonologist";
+            } else if (principalDoc.toLowerCase().includes('cardiology') || principalDoc.toLowerCase().includes('sen') || principalDoc.toLowerCase().includes('reddy')) {
+                querySpecialist = "cardiologist";
+            } else if (principalDoc.toLowerCase().includes('general') || principalDoc.toLowerCase().includes('rao') || principalDoc.toLowerCase().includes('gupta')) {
+                querySpecialist = "general-physician";
+            }
+            practoBtn.href = `https://www.practo.com/search/doctors?results_type=doctor&q=${querySpecialist}&city=Bangalore`;
+        }
     }
 
     function loadConsultationMessages() {
@@ -953,5 +977,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         chatBox.appendChild(div);
+    }
+
+    // Setup Vitals Synchronizer & Progress Timeline listeners
+    const syncVitalsBtn = document.getElementById('syncVitalsBtn');
+    if (syncVitalsBtn) {
+        syncVitalsBtn.addEventListener('click', () => {
+            syncVitalsBtn.disabled = true;
+            syncVitalsBtn.innerHTML = `<span class="spinner-sm" style="display: inline-block; width: 10px; height: 10px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 4px;"></span> Syncing...`;
+            
+            setTimeout(() => {
+                const hr = Math.floor(Math.random() * (85 - 65 + 1)) + 65;
+                const steps = Math.floor(Math.random() * (12000 - 6000 + 1)) + 6000;
+                const sleep = (Math.random() * (8.5 - 6.0) + 6.0).toFixed(1);
+                
+                document.getElementById('vitalsHrText').innerText = `${hr} bpm`;
+                document.getElementById('vitalsStepsText').innerText = `${steps.toLocaleString()} steps`;
+                document.getElementById('vitalsSleepText').innerText = `${sleep} hrs`;
+                
+                syncVitalsBtn.disabled = false;
+                syncVitalsBtn.innerHTML = `<i class="ti ti-refresh"></i> Sync Vitals`;
+            }, 1000);
+        });
+    }
+
+    function updatePatientHistoryTimeline() {
+        fetch('/api/patient/history/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('progressTimelineContainer');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                if (!data.history || data.history.length === 0) {
+                    container.innerHTML = `<p style="font-size: 11px; color: var(--text-secondary); margin: 0;">Upload multiple scans to track indicators over time.</p>`;
+                    return;
+                }
+                
+                data.history.forEach((scan, index) => {
+                    const row = document.createElement('div');
+                    row.style.cssText = `display: flex; gap: 10px; align-items: center; background: #fff; padding: 8px 10px; border-radius: 6px; border: 0.5px solid #e5e7eb; font-size: 11.5px; position: relative; margin-top: 4px;`;
+                    
+                    const indicatorDot = document.createElement('div');
+                    indicatorDot.style.cssText = `width: 8px; height: 8px; border-radius: 50%; background: ${scan.detected ? '#ef4444' : '#10b981'}; flex-shrink: 0;`;
+                    
+                    const textBlock = document.createElement('div');
+                    textBlock.style.cssText = `flex: 1; display: flex; justify-content: space-between; align-items: center;`;
+                    
+                    const labelSpan = document.createElement('span');
+                    labelSpan.innerHTML = `<strong>Scan #${index + 1}:</strong> ${scan.modality} (${scan.filename}) <span style="font-size: 9.5px; color: var(--text-secondary); margin-left: 4px;">${scan.timestamp}</span>`;
+                    
+                    const valSpan = document.createElement('span');
+                    valSpan.style.cssText = `font-weight: 700; color: var(--text-primary);`;
+                    valSpan.innerText = `Metric: ${scan.confidence}%`;
+                    
+                    textBlock.appendChild(labelSpan);
+                    textBlock.appendChild(valSpan);
+                    
+                    row.appendChild(indicatorDot);
+                    row.appendChild(textBlock);
+                    
+                    container.appendChild(row);
+                });
+            }
+        })
+        .catch(error => console.error('Patient history timeline error:', error));
     }
 });

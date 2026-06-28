@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/consult/<int:consult_id>/messages/', views.consult_messages_api, name='consult_messages'),
     path('api/consult/<int:consult_id>/invite/', views.invite_specialist_api, name='invite_specialist'),
     path('api/consult/<int:consult_id>/signoff/', views.signoff_consult_api, name='signoff_consult'),
+    path('api/patient/history/', views.patient_history_api, name='patient_history'),
 ]

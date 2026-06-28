@@ -318,6 +318,7 @@ def chat_api(request, scan_id):
         return JsonResponse({'success': False, 'error': 'Scan not found.'})
         
     user_msg_text = request.POST.get('message', '').strip()
+    language = request.POST.get('language', 'English').strip()
     if not user_msg_text:
         return JsonResponse({'success': False, 'error': 'Empty message.'})
         
@@ -400,6 +401,7 @@ def chat_api(request, scan_id):
             # Format system prompt
             system_prompt = (
                 "You are MedAssist, a compassionate AI healthcare companion on NeuroDetect AI. "
+                f"You MUST generate your entire response in {language} only. Speak naturally and adapt medical terms into region-appropriate dialect.\n"
                 f"You have just analyzed the patient's {scan.modality} report.\n"
                 f"Scan File: {scan.scan_name}\n"
                 f"Anomalies detected ({findings_label}): {scan.detected}\n"
@@ -440,10 +442,10 @@ def chat_api(request, scan_id):
         except Exception as e:
             # On API failure, fall back to mock
             print(f"[Chat API Error] Anthropic call failed, falling back to mock: {e}")
-            assistant_response = get_mock_response(user_msg_text, scan)
+            assistant_response = get_mock_response(user_msg_text, scan, language)
     else:
         # Fall back to mock when key is not configured
-        assistant_response = get_mock_response(user_msg_text, scan)
+        assistant_response = get_mock_response(user_msg_text, scan, language)
         
     # Save assistant response to database
     ChatMessage.objects.create(
@@ -459,7 +461,12 @@ def chat_api(request, scan_id):
     })
 
 
-def get_mock_response(query, scan):
+def get_mock_response(query, scan, language="English"):
+    resp = _get_mock_response_english(query, scan)
+    return translate_to_language(resp, language)
+
+
+def _get_mock_response_english(query, scan):
     q = query.lower()
     m = scan.modality
     val_str = f"{scan.confidence:.2f}%"
@@ -878,3 +885,86 @@ def signoff_consult_api(request, consult_id):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+def translate_to_language(text, language):
+    lang = language.strip().lower()
+    if lang == 'english' or not lang:
+        return text
+        
+    translations = {
+        'hindi': {
+            "Please stay calm but act immediately.": "कृपया शांत रहें लेकिन तुरंत कार्रवाई करें।",
+            "If you or the patient are experiencing chest pain, severe shortness of breath,": "यदि आपको या रोगी को छाती में दर्द, सांस लेने में गंभीर तकलीफ,",
+            "or radiative left-arm numbness, please call emergency services (like 112 or 102/108 in India, or 911) immediately.": "या बाएं हाथ में सुन्नता महसूस हो रही है, तो कृपया तुरंत आपातकालीन सेवाओं (जैसे 112 या 102/108) को कॉल करें।",
+            "These symptoms require instant evaluation in a hospital emergency room.": "इन लक्षणों के लिए अस्पताल के आपातकालीन कक्ष में तत्काल मूल्यांकन की आवश्यकता होती है।",
+            "I'm here to support you.": "मैं आपकी सहायता के लिए यहां हूं।",
+            "The 'lesion load' of": "का 'घाव भार' (lesion load)",
+            "indicates the portion of the brain's soft tissue area that shows decreased density": "मस्तिष्क के कोमल ऊतक क्षेत्र के उस हिस्से को दर्शाता है जो कम घनत्व दिखाता है",
+            "compared to normal tissue.": "सामान्य ऊतक की तुलना में।",
+            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible.": "आपको जल्द से जल्द एक **न्यूरोलॉजिस्ट** (Neurologist) या **न्यूरोरेडियोलॉजिस्ट** से परामर्श करना चाहिए।",
+            "They are the medical specialists trained to read brain scans and diagnose neurological conditions.": "वे मस्तिष्क स्कैन पढ़ने और न्यूरोलॉजिकल स्थितियों का निदान करने के लिए प्रशिक्षित चिकित्सा विशेषज्ञ हैं।",
+            "This is not a medical diagnosis. Consult a qualified doctor.": "यह एक चिकित्सा निदान नहीं है। एक योग्य डॉक्टर से परामर्श करें।"
+        },
+        'tamil': {
+            "Please stay calm but act immediately.": "தயவுசெய்து அமைதியாக இருங்கள், ஆனால் உடனடியாக செயல்படுங்கள்.",
+            "If you or the patient are experiencing chest pain, severe shortness of breath,": "உங்களுக்கு அல்லது நோயாளிக்கு மார்பு வலி, கடுமையான மூச்சுத் திணறல்,",
+            "or radiative left-arm numbness, please call emergency services (like 112 or 102/108 in India, or 911) immediately.": "அல்லது இடது கையில் மரத்துப்போதல் இருந்தால், உடனடியாக அவசர சேவைகளை (112 அல்லது 102/108) அழைக்கவும்.",
+            "These symptoms require instant evaluation in a hospital emergency room.": "இந்த அறிகுறிகளுக்கு மருத்துவமனை அவசர அறையில் உடனডি மதிப்பீடு தேவைப்படுகிறது.",
+            "I'm here to support you.": "உங்களுக்கு உதவ நான் இங்கே இருக்கிறேன்.",
+            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible.": "நீங்கள் கூடிய விரைவில் ஒரு **நரம்பியல் நிபுணரை** (Neurologist) அல்லது **நரம்பியல் கதிரியக்க நிபுணரை** அணுக வேண்டும்.",
+            "This is not a medical diagnosis. Consult a qualified doctor.": "இது மருத்துவக் கண்டறிதல் அல்ல. தகுதியான மருத்துவரை அணுகவும்."
+        },
+        'telugu': {
+            "Please stay calm but act immediately.": "దయచేసి ప్రశాంతంగా ఉండండి కానీ వెంటనే చర్య తీసుకోండి.",
+            "If you or the patient are experiencing chest pain, severe shortness of breath, or radiative left-arm numbness,": "మీకు లేదా రోగికి గుండె నొప్పి, తీవ్రమైన శ్వాస ఆడకపోవడం లేదా ఎడమ చేయి మొద్దుబారడం వంటివి ఉంటే,",
+            "please call emergency services immediately.": "దయచేసి వెంటనే అత్యవసర సేవలను సంప్రదించండి.",
+            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible.": "మీరు వీలైనంత త్వరగా **న్యూరాలజిస్ట్** (Neurologist) లేదా **న్యూరో రేడియాలజిస్ట్** ని సంప్రదించాలి.",
+            "This is not a medical diagnosis. Consult a qualified doctor.": "ఇది వైద్య నిర్ధారణ కాదు. అర్హత కలిగిన వైద్యుడిని సంప్రదించండి."
+        },
+        'bengali': {
+            "Please stay calm but act immediately.": "দয়া করে শান্ত থাকুন কিন্তু অবিলম্বে পদক্ষেপ নিন।",
+            "If you or the patient are experiencing chest pain, severe shortness of breath, or radiative left-arm numbness,": "আপনি বা রোগী যদি বুকে ব্যথা, তীব্র শ্বাসকষ্ট বা বাম হাত অসাড় হওয়া অনুভব করেন,",
+            "please call emergency services immediately.": "দয়া করে অবিলম্বে জরুরি পরিষেবাতে কল করুন।",
+            "You should consult a **Neurologist** or a **Neuroradiologist** as soon as possible.": "আপনার যত তাড়াতাড়ি সম্ভব একজন **নিউরোলজিস্ট** (Neurologist) বা **নিউরোরেডিওলজিস্ট** এর সাথে পরামর্শ করা উচিত।",
+            "This is not a medical diagnosis. Consult a qualified doctor.": "এটি কোনও চিকিত্সা নির্ণয় নয়। একজন যোগ্যতাসম্পন্ন ডাক্তারের সাথে পরামর্শ করুন।"
+        }
+    }
+    
+    lang_dict = translations.get(lang, {})
+    translated_text = text
+    for eng_phrase, target_phrase in lang_dict.items():
+        translated_text = translated_text.replace(eng_phrase, target_phrase)
+        
+    if translated_text == text:
+        translated_text = f"[{language} Translation] {text}"
+        
+    return translated_text
+
+
+def patient_history_api(request):
+    scans = PatientScan.objects.all().order_by('-id')[:10]
+    scans = list(reversed(list(scans)))
+    
+    history = []
+    for s in scans:
+        cv_score = 0.0
+        try:
+            cv_score = s.risk_profile.cv_risk_score
+        except Exception:
+            pass
+            
+        history.append({
+            'id': s.id,
+            'filename': s.scan_name,
+            'modality': s.modality,
+            'confidence': s.confidence,
+            'detected': s.detected,
+            'cv_risk_score': cv_score,
+            'timestamp': s.created_at.strftime('%Y-%m-%d %H:%M')
+        })
+        
+    return JsonResponse({
+        'success': True,
+        'history': history
+    })
