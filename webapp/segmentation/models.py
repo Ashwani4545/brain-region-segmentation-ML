@@ -58,3 +58,21 @@ class PatientRiskProfile(models.Model):
     stroke_risk_grade = models.CharField(max_length=20)
     detailed_metrics = models.JSONField()       # age, BP, BMI, smoking status used
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TelehealthConsultation(models.Model):
+    scan = models.OneToOneField(PatientScan, on_delete=models.CASCADE, related_name='consultation')
+    assigned_doctor = models.CharField(max_length=100) # Principal doctor
+    specialist_panel = models.JSONField(default=list)  # Invited doctors list (e.g. ["Dr. Priya Patel (Cardiology)"])
+    status = models.CharField(max_length=20, default='REQUESTED') # REQUESTED, ACTIVE, COMPLETED
+    clinical_notes = models.TextField(blank=True, null=True)     # Doctor sign-off commentary
+    signed_off_by = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ConsultationMessage(models.Model):
+    consultation = models.ForeignKey(TelehealthConsultation, on_delete=models.CASCADE, related_name='messages')
+    sender_name = models.CharField(max_length=100) # Patient name or Doctor name
+    is_doctor = models.BooleanField(default=False)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)

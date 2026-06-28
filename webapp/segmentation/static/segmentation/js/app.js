@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let currentScanId = null;
+    let currentConsultId = null;
+    let telehealthPollInterval = null;
     let typingIndicatorElem = null;
 
     // Setup Tab Switcher Handlers
@@ -57,6 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetPane.classList.remove('hidden');
                 targetPane.classList.add('active');
             }
+
+            // Clear any active telehealth polling
+            if (telehealthPollInterval) {
+                clearInterval(telehealthPollInterval);
+                telehealthPollInterval = null;
+            }
+
+            // Telehealth room activation
+            if (targetTab === 'telehealth') {
+                if (currentConsultId) {
+                    loadConsultationMessages();
+                    telehealthPollInterval = setInterval(loadConsultationMessages, 4000);
+                } else if (currentScanId) {
+                    fetchNearbySpecialists();
+                }
+            }
         });
     });
 
@@ -66,7 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadArea.classList.remove('hidden');
         fileInput.value = '';
         currentScanId = null;
+        currentConsultId = null;
+        if (telehealthPollInterval) {
+            clearInterval(telehealthPollInterval);
+            telehealthPollInterval = null;
+        }
         document.getElementById('chatMessages').innerHTML = '';
+        
+        // Reset view states
+        document.getElementById('telehealthReferralView').classList.remove('hidden');
+        document.getElementById('telehealthActiveRoom').classList.add('hidden');
         
         // Reset tabs to default active
         tabButtons.forEach(b => b.classList.remove('active'));
@@ -250,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Populate predictive risk profiles
                 populateRiskProfiler(data.risk_profile);
+
+                // Populate telehealth referral specialists
+                updateTelehealthReferrals(data.specialists);
 
                 resultsArea.classList.remove('hidden');
 
@@ -583,5 +613,345 @@ document.addEventListener('DOMContentLoaded', () => {
             strokePath.setAttribute('stroke', '#10b981'); // green
             badge.classList.add('med-badge-success');
         }
+    }
+
+    // Setup Telehealth room event listeners
+    const telehealthCitySelect = document.getElementById('telehealthCitySelect');
+    if (telehealthCitySelect) {
+        telehealthCitySelect.addEventListener('change', () => {
+            fetchNearbySpecialists();
+        });
+    }
+
+    const requestConsultBtn = document.getElementById('requestConsultBtn');
+    if (requestConsultBtn) {
+        requestConsultBtn.addEventListener('click', () => {
+            if (!currentScanId) return;
+            
+            const city = telehealthCitySelect?.value || 'Bangalore';
+            const formData = new FormData();
+            formData.append('city', city);
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            requestConsultBtn.disabled = true;
+            requestConsultBtn.innerHTML = `<span class="spinner-sm" style="display: inline-block; width: 12px; height: 12px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px;"></span> Assigning Specialist...`;
+            
+            fetch(`/api/consult/request/${currentScanId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                requestConsultBtn.disabled = false;
+                requestConsultBtn.innerHTML = `<i class="ti ti-users-group"></i> Request Telehealth Consult Room`;
+                if (data.success) {
+                    currentConsultId = data.consult_id;
+                    setupTelehealthRoom(data.consult_id, data.assigned_doctor, data.status, [], '', '');
+                    // Start polling
+                    if (telehealthPollInterval) clearInterval(telehealthPollInterval);
+                    telehealthPollInterval = setInterval(loadConsultationMessages, 4000);
+                } else {
+                    alert('Error creating consult session: ' + data.error);
+                }
+            })
+            .catch(error => {
+                requestConsultBtn.disabled = false;
+                requestConsultBtn.innerHTML = `<i class="ti ti-users-group"></i> Request Telehealth Consult Room`;
+                console.error('Request consult error:', error);
+                alert('A network error occurred.');
+            });
+        });
+    }
+
+    const telehealthChatForm = document.getElementById('telehealthChatForm');
+    const telehealthChatInput = document.getElementById('telehealthChatInput');
+    if (telehealthChatForm) {
+        telehealthChatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = telehealthChatInput?.value || '';
+            if (!text.trim() || !currentConsultId) return;
+            
+            // Clear input
+            telehealthChatInput.value = '';
+            
+            // Add bubble immediately for responsive UI
+            addTelehealthMessageBubble('Patient', false, text, new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+            
+            const formData = new FormData();
+            formData.append('message', text);
+            formData.append('sender', 'Patient');
+            formData.append('is_doctor', 'false');
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            fetch(`/api/consult/${currentConsultId}/messages/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadConsultationMessages();
+                } else {
+                    console.error('Send consult message failed:', data.error);
+                }
+            })
+            .catch(error => console.error('Send message error:', error));
+        });
+    }
+
+    const inviteSpecialistBtn = document.getElementById('inviteSpecialistBtn');
+    const inviteSpecialistSelect = document.getElementById('inviteSpecialistSelect');
+    if (inviteSpecialistBtn && inviteSpecialistSelect) {
+        inviteSpecialistBtn.addEventListener('click', () => {
+            const spec = inviteSpecialistSelect.value;
+            if (!spec || !currentConsultId) return;
+            
+            const formData = new FormData();
+            formData.append('specialist', spec);
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            inviteSpecialistBtn.disabled = true;
+            
+            fetch(`/api/consult/${currentConsultId}/invite/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                inviteSpecialistBtn.disabled = false;
+                if (data.success) {
+                    loadConsultationMessages();
+                } else {
+                    alert('Error inviting specialist: ' + data.error);
+                }
+            })
+            .catch(error => {
+                inviteSpecialistBtn.disabled = false;
+                console.error('Invite specialist error:', error);
+            });
+        });
+    }
+
+    const clinicalSignoffBtn = document.getElementById('clinicalSignoffBtn');
+    const clinicalNotesInput = document.getElementById('clinicalNotesInput');
+    const doctorSignatureInput = document.getElementById('doctorSignatureInput');
+    if (clinicalSignoffBtn) {
+        clinicalSignoffBtn.addEventListener('click', () => {
+            const notes = clinicalNotesInput?.value || '';
+            const sig = doctorSignatureInput?.value || '';
+            
+            if (!notes.trim() || !sig.trim()) {
+                alert('Please enter both clinical sign-off notes and doctor signature.');
+                return;
+            }
+            
+            if (!currentConsultId) return;
+            
+            const formData = new FormData();
+            formData.append('clinical_notes', notes);
+            formData.append('doctor_signature', sig);
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            clinicalSignoffBtn.disabled = true;
+            
+            fetch(`/api/consult/${currentConsultId}/signoff/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                clinicalSignoffBtn.disabled = false;
+                if (data.success) {
+                    loadConsultationMessages();
+                } else {
+                    alert('Sign-off error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                clinicalSignoffBtn.disabled = false;
+                console.error('Signoff error:', error);
+            });
+        });
+    }
+
+    function fetchNearbySpecialists() {
+        if (!currentScanId) return;
+        const city = telehealthCitySelect?.value || 'Bangalore';
+        const formData = new FormData();
+        formData.append('city', city);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        
+        fetch(`/api/consult/request/${currentScanId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateTelehealthReferrals(data.specialists);
+            }
+        })
+        .catch(error => console.error('Fetch specialists error:', error));
+    }
+
+    function updateTelehealthReferrals(specialists) {
+        const container = document.getElementById('specialistListContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        if (!specialists || specialists.length === 0) {
+            container.innerHTML = `<p style="font-size: 11px; color: var(--text-secondary); grid-column: 1 / -1;">No specialists available in this area.</p>`;
+            return;
+        }
+        
+        specialists.forEach(d => {
+            const card = document.createElement('div');
+            card.style.cssText = `background: #fff; padding: 10px; border-radius: 6px; border: 0.5px solid #e5e7eb; display: flex; flex-direction: column; gap: 4px; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;`;
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <span style="font-size: 11.5px; font-weight: 700; color: var(--text-primary);">${d.name}</span>
+                    <span class="med-badge med-badge-success" style="font-size: 9px; padding: 1px 4px;">★ ${d.rating}</span>
+                </div>
+                <span style="font-size: 10px; color: var(--accent-primary); font-weight: 600;">${d.specialty} Specialist</span>
+                <span style="font-size: 10px; color: var(--text-secondary); line-height: 1.3;">${d.hospital} (${d.city})</span>
+                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 0.5px solid #f3f4f6; padding-top: 4px; font-size: 9.5px; color: var(--text-secondary);">
+                    <span><i class="ti ti-map-pin"></i> Proximity:</span>
+                    <span style="font-weight: 600; color: var(--text-primary);">${d.distance}</span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function setupTelehealthRoom(consultId, principalDoc, status, panel, notes, signoff) {
+        document.getElementById('telehealthReferralView').classList.add('hidden');
+        document.getElementById('telehealthActiveRoom').classList.remove('hidden');
+        
+        document.getElementById('consultPrincipalDoc').innerText = principalDoc;
+        const statusBadge = document.getElementById('consultStatusBadge');
+        statusBadge.innerText = status;
+        statusBadge.className = 'med-badge';
+        
+        if (status === 'COMPLETED') {
+            statusBadge.classList.add('med-badge-success');
+            document.getElementById('inviteSpecialistArea').classList.add('hidden');
+            document.getElementById('clinicalSignoffBox').classList.add('hidden');
+            document.getElementById('telehealthChatForm').classList.add('hidden');
+        } else {
+            statusBadge.classList.add('med-badge-warning');
+            document.getElementById('inviteSpecialistArea').classList.remove('hidden');
+            document.getElementById('clinicalSignoffBox').classList.remove('hidden');
+            document.getElementById('telehealthChatForm').classList.remove('hidden');
+        }
+        
+        // Populate Panel List
+        const list = document.getElementById('consultPanelList');
+        list.innerHTML = `<li>${principalDoc} (Principal Doctor)</li>`;
+        (panel || []).forEach(name => {
+            const li = document.createElement('li');
+            li.innerText = name;
+            list.appendChild(li);
+        });
+    }
+
+    function loadConsultationMessages() {
+        if (!currentConsultId) return;
+        
+        fetch(`/api/consult/${currentConsultId}/messages/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate room state
+                setupTelehealthRoom(
+                    currentConsultId,
+                    data.assigned_doctor,
+                    data.status,
+                    data.specialist_panel,
+                    data.clinical_notes,
+                    data.signed_off_by
+                );
+                
+                // Populate Chat messages
+                const chatBox = document.getElementById('telehealthChatMessages');
+                const atBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 40;
+                
+                chatBox.innerHTML = '';
+                (data.messages || []).forEach(m => {
+                    addTelehealthMessageBubble(m.sender, m.is_doctor, m.message, m.timestamp);
+                });
+                
+                // Auto scroll
+                if (atBottom || chatBox.innerHTML === '') {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+                
+                // Populate invite dropdown using specialists list
+                const inviteSelect = document.getElementById('inviteSpecialistSelect');
+                if (inviteSelect && inviteSelect.innerHTML === '') {
+                    (data.specialists || []).forEach(d => {
+                        const nameWithSpecialty = `${d.name} (${d.specialty})`;
+                        if (nameWithSpecialty !== data.assigned_doctor.split(',')[0] && !data.specialist_panel.includes(nameWithSpecialty)) {
+                            const opt = document.createElement('option');
+                            opt.value = nameWithSpecialty;
+                            opt.innerText = nameWithSpecialty;
+                            inviteSelect.appendChild(opt);
+                        }
+                    });
+                }
+            }
+        })
+        .catch(error => console.error('Load messages error:', error));
+    }
+
+    function addTelehealthMessageBubble(sender, isDoctor, text, time) {
+        const chatBox = document.getElementById('telehealthChatMessages');
+        if (!chatBox) return;
+        
+        const div = document.createElement('div');
+        div.style.cssText = `max-width: 80%; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 8px; font-size: 11.5px; line-height: 1.4;`;
+        
+        if (sender === 'System') {
+            div.style.cssText += `align-self: center; background: #eef2f6; border: 0.5px solid #d0d7de; color: var(--text-secondary); text-align: center; font-size: 10px; width: 90%; max-width: 90%;`;
+            div.innerHTML = `<strong>System Notice:</strong> ${text}`;
+        } else if (isDoctor) {
+            div.style.cssText += `align-self: flex-start; background: #fff; border: 0.5px solid #e5e7eb; color: var(--text-primary);`;
+            div.innerHTML = `
+                <strong style="font-size: 9px; color: var(--accent-primary); text-transform: uppercase; margin-bottom: 2px;">${sender}</strong>
+                <span>${text}</span>
+                <span style="font-size: 8.5px; color: var(--text-secondary); align-self: flex-end; margin-top: 2px;">${time}</span>
+            `;
+        } else {
+            div.style.cssText += `align-self: flex-end; background: var(--accent-primary); color: #fff;`;
+            div.innerHTML = `
+                <span>${text}</span>
+                <span style="font-size: 8.5px; color: rgba(255,255,255,0.7); align-self: flex-end; margin-top: 2px;">${time}</span>
+            `;
+        }
+        
+        chatBox.appendChild(div);
     }
 });

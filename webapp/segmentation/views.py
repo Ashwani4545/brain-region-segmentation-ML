@@ -10,7 +10,7 @@ from django.db.models import Avg
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from .models import PatientScan, ChatMessage, PatientGuidance
+from .models import PatientScan, ChatMessage, PatientGuidance, TelehealthConsultation, ConsultationMessage
 
 # Allowed file extensions for upload validation
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.dcm', '.pdf'}
@@ -635,6 +635,246 @@ def recalculate_risk_api(request, scan_id):
         return JsonResponse({
             'success': True,
             'risk_profile': risk_data
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def request_consult_api(request, scan_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST method required'})
+        
+    try:
+        scan = PatientScan.objects.get(id=scan_id)
+    except PatientScan.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Scan not found'})
+        
+    city = request.POST.get('city', 'Bangalore')
+    
+    try:
+        from core_ml.telehealth import get_telehealth_router
+        router = get_telehealth_router()
+        closest_docs = router.get_closest_specialists(scan.modality, city)
+        
+        if not closest_docs:
+            return JsonResponse({'success': False, 'error': 'No specialists found'})
+            
+        primary_doc = closest_docs[0]
+        doc_display = f"{primary_doc['name']} ({primary_doc['specialty']}, {primary_doc['hospital']})"
+        
+        # Create consultation
+        consult, created = TelehealthConsultation.objects.get_or_create(
+            scan=scan,
+            defaults={
+                'assigned_doctor': doc_display,
+                'specialist_panel': [],
+                'status': 'ACTIVE'
+            }
+        )
+        
+        # Add welcome message
+        if created:
+            ConsultationMessage.objects.create(
+                consultation=consult,
+                sender_name=primary_doc['name'],
+                is_doctor=True,
+                message=f"Hello, I am {primary_doc['name']}. I have received your clinical consult request for the {scan.scan_name} scan. I am reviewing the findings and telemetry data now. Please let me know if you are experiencing active symptoms."
+            )
+            
+        # Get doctor referral listings to send to frontend
+        referral_list = []
+        for d in closest_docs:
+            referral_list.append({
+                'name': d['name'],
+                'specialty': d['specialty'],
+                'hospital': d['hospital'],
+                'city': d['city'],
+                'distance': f"{d['distance_km']} km",
+                'rating': d['rating']
+            })
+            
+        return JsonResponse({
+            'success': True,
+            'consult_id': consult.id,
+            'assigned_doctor': consult.assigned_doctor,
+            'status': consult.status,
+            'specialists': referral_list
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def consult_messages_api(request, consult_id):
+    try:
+        consult = TelehealthConsultation.objects.get(id=consult_id)
+    except TelehealthConsultation.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Consultation session not found'})
+        
+    if request.method == 'GET':
+        # Retrieve room messages
+        messages = consult.messages.all().order_by('timestamp')
+        msg_list = []
+        for m in messages:
+            msg_list.append({
+                'sender': m.sender_name,
+                'is_doctor': m.is_doctor,
+                'message': m.message,
+                'timestamp': m.timestamp.strftime('%H:%M')
+            })
+            
+        # Also return specialist listings for referrals mapping when query location is Bangalore
+        from core_ml.telehealth import get_telehealth_router
+        router = get_telehealth_router()
+        closest_docs = router.get_closest_specialists(consult.scan.modality, 'Bangalore')
+        referral_list = [{
+            'name': d['name'],
+            'specialty': d['specialty'],
+            'hospital': d['hospital'],
+            'city': d['city'],
+            'distance': f"{d['distance_km']} km",
+            'rating': d['rating']
+        } for d in closest_docs]
+
+        return JsonResponse({
+            'success': True,
+            'status': consult.status,
+            'assigned_doctor': consult.assigned_doctor,
+            'specialist_panel': consult.specialist_panel,
+            'clinical_notes': consult.clinical_notes,
+            'signed_off_by': consult.signed_off_by,
+            'messages': msg_list,
+            'specialists': referral_list
+        })
+        
+    elif request.method == 'POST':
+        message_text = request.POST.get('message', '').strip()
+        sender_name = request.POST.get('sender', 'Patient').strip()
+        is_doctor = request.POST.get('is_doctor', 'false').lower() == 'true'
+        
+        if not message_text:
+            return JsonResponse({'success': False, 'error': 'Empty message text'})
+            
+        try:
+            # Save user message
+            ConsultationMessage.objects.create(
+                consultation=consult,
+                sender_name=sender_name,
+                is_doctor=is_doctor,
+                message=message_text
+            )
+            
+            # Interactive simulated Doctor response triggers if it's the patient sending a message
+            if not is_doctor and consult.status == 'ACTIVE':
+                doc_name = consult.assigned_doctor.split('(')[0].strip()
+                
+                # Check user query keywords
+                q = message_text.lower()
+                doc_reply = (
+                    "Thank you for sharing that. I am reviewing this parameter right now. I advise monitoring symptoms "
+                    "carefully and getting plenty of rest while we finalize the clinical findings panel."
+                )
+                if any(w in q for w in ['pain', 'severe', 'hurts', 'breath', 'emergency']):
+                    doc_reply = (
+                        "I am noting down these symptoms immediately. Since you mentioned severe symptoms or acute distress, "
+                        "please proceed to the nearest emergency room immediately. I will flag this case as critical on our panel."
+                    )
+                elif any(w in q for w in ['diet', 'eat', 'avoid', 'food']):
+                    doc_reply = (
+                        "I highly recommend following the personalized diet recommendations in the Dietary Planner tab (such as "
+                        "reducing sodium or sugars depending on your report profile). I've added a note on this to your file."
+                    )
+                elif any(w in q for w in ['medication', 'pill', 'tablet', 'drug', 'take']):
+                    doc_reply = (
+                        "We should complete a physical consultation and repeat diagnostic blood panels before prescribing any "
+                        "medications. Please do not self-medicate in the meantime."
+                    )
+                
+                ConsultationMessage.objects.create(
+                    consultation=consult,
+                    sender_name=doc_name,
+                    is_doctor=True,
+                    message=doc_reply
+                )
+                
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def invite_specialist_api(request, consult_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST method required'})
+        
+    try:
+        consult = TelehealthConsultation.objects.get(id=consult_id)
+    except TelehealthConsultation.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Consultation session not found'})
+        
+    specialist_name = request.POST.get('specialist', '').strip()
+    if not specialist_name:
+        return JsonResponse({'success': False, 'error': 'Specialist name required'})
+        
+    try:
+        panel = list(consult.specialist_panel)
+        if specialist_name not in panel:
+            panel.append(specialist_name)
+            consult.specialist_panel = panel
+            consult.save()
+            
+            # Log invitation system message
+            ConsultationMessage.objects.create(
+                consultation=consult,
+                sender_name="System",
+                is_doctor=True,
+                message=f"{specialist_name} has joined the consultation panel."
+            )
+            
+        return JsonResponse({
+            'success': True,
+            'specialist_panel': consult.specialist_panel
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def signoff_consult_api(request, consult_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST method required'})
+        
+    try:
+        consult = TelehealthConsultation.objects.get(id=consult_id)
+    except TelehealthConsultation.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Consultation session not found'})
+        
+    clinical_notes = request.POST.get('clinical_notes', '').strip()
+    doctor_signature = request.POST.get('doctor_signature', '').strip()
+    
+    if not clinical_notes or not doctor_signature:
+        return JsonResponse({'success': False, 'error': 'Clinical notes and signature are required'})
+        
+    try:
+        consult.status = 'COMPLETED'
+        consult.clinical_notes = clinical_notes
+        consult.signed_off_by = doctor_signature
+        consult.save()
+        
+        # Log sign-off message
+        ConsultationMessage.objects.create(
+            consultation=consult,
+            sender_name="System",
+            is_doctor=True,
+            message=f"Case signed off by {doctor_signature}. Final Notes: {clinical_notes}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'status': consult.status,
+            'clinical_notes': consult.clinical_notes,
+            'signed_off_by': consult.signed_off_by
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})

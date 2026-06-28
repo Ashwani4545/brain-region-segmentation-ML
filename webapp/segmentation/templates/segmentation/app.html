@@ -92,6 +92,9 @@
                             <button class="tab-btn" data-tab="risk" style="padding: 10px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -2px;">
                                 <i class="ti ti-heart-rate-monitor" style="font-size: 14px;"></i> Risk Profiler
                             </button>
+                            <button class="tab-btn" data-tab="telehealth" style="padding: 10px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -2px;">
+                                <i class="ti ti-users" style="font-size: 14px;"></i> Doctor Room
+                            </button>
                         </div>
                         
                         <div class="tab-content-container" style="padding: 1.5rem; background: var(--bg-surface); border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; min-height: 160px;">
@@ -231,6 +234,88 @@
                                                 Risk grading estimates potential occurrences over 10 years (ASCVD) or physiological markers (Diabetes/Stroke). Verify demographics to calculate scores.
                                             </p>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 6: Telehealth & Doctor Room -->
+                            <div class="tab-pane hidden" id="tab-telehealth">
+                                <!-- View A: Referral Specialists Matching (Default) -->
+                                <div id="telehealthReferralView">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;"><i class="ti ti-map-pin" style="color: var(--accent-primary);"></i> Dynamic Geographical Specialists Referral</h4>
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <label style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Your City:</label>
+                                            <select id="telehealthCitySelect" style="padding: 4px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; outline: none; background: #fff; cursor: pointer;">
+                                                <option value="Bangalore">Bangalore</option>
+                                                <option value="Mumbai">Mumbai</option>
+                                                <option value="Delhi">Delhi</option>
+                                                <option value="Chennai">Chennai</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">Based on your scan type and geographical location, these nearby specialists are available for instant consultation panel requests.</p>
+                                    
+                                    <div id="specialistListContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                        <!-- Dynamic doctor cards -->
+                                    </div>
+                                    
+                                    <div style="display: flex; justify-content: center; margin-top: 20px;">
+                                        <button id="requestConsultBtn" class="btn-primary" style="padding: 10px 24px; font-size: 12.5px; font-weight: 600; border-radius: 6px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><i class="ti ti-users-group"></i> Request Telehealth Consult Room</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- View B: Active Collaboration Room -->
+                                <div id="telehealthActiveRoom" class="hidden" style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 1.5rem; height: 350px;">
+                                    <!-- Left Panel: Case Details & invited Panel -->
+                                    <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; border: 0.5px solid #e5e7eb; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div>
+                                            <h5 style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 4px;"><i class="ti ti-shield-check" style="color: var(--accent-primary);"></i> Consult Room Active</h5>
+                                            <p style="font-size: 11.5px; margin-bottom: 4px;"><strong style="color: var(--text-primary);">Assigned Doctor:</strong> <span id="consultPrincipalDoc" style="font-weight: 600;">--</span></p>
+                                            <p style="font-size: 11.5px; margin-bottom: 8px;"><strong style="color: var(--text-primary);">Status:</strong> <span id="consultStatusBadge" class="med-badge med-badge-success">ACTIVE</span></p>
+                                            
+                                            <div style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+                                                <h6 style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Consulting Specialist Panel:</h6>
+                                                <ul id="consultPanelList" style="font-size: 11px; color: var(--text-secondary); padding-left: 1.2rem; margin: 0; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;">
+                                                    <!-- Invited doctors -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Invite Specialist Area -->
+                                        <div id="inviteSpecialistArea" style="margin-top: 15px; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+                                            <label style="font-size: 10px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Invite Departments (Referrals):</label>
+                                            <div style="display: flex; gap: 6px;">
+                                                <select id="inviteSpecialistSelect" style="flex: 1; padding: 4px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 11px; background: #fff; outline: none;">
+                                                    <!-- Dynamic options -->
+                                                </select>
+                                                <button id="inviteSpecialistBtn" style="padding: 4px 8px; font-size: 10.5px; font-weight: 600; background: var(--accent-primary); color: #fff; border: none; border-radius: 4px; cursor: pointer;">Invite</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Right Panel: Physician-Patient Live Chat -->
+                                    <div style="display: flex; flex-direction: column; border: 0.5px solid #e5e7eb; border-radius: 8px; background: #fff; overflow: hidden; height: 100%;">
+                                        <!-- Chat logs box -->
+                                        <div id="telehealthChatMessages" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #fafafa;">
+                                            <!-- Chat messages -->
+                                        </div>
+                                        
+                                        <!-- Clinical Sign-Off Drawer -->
+                                        <div id="clinicalSignoffBox" class="hidden" style="background: #fff8eb; border-top: 0.5px solid #ffeeba; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px;">
+                                            <h6 style="font-size: 10px; font-weight: 700; color: #b58900; margin: 0; display: flex; align-items: center; gap: 4px;"><i class="ti ti-writing-sign"></i> Doctor Case Sign-Off Panel</h6>
+                                            <textarea id="clinicalNotesInput" placeholder="Enter clinical sign-off notes & final diagnostics recommendations here..." style="font-size: 11px; padding: 6px; border: 0.5px solid #e5e7eb; border-radius: 4px; width: 100%; height: 50px; resize: none; outline: none; font-family: inherit; background: #fff;"></textarea>
+                                            <div style="display: flex; gap: 6px; align-items: center;">
+                                                <input type="text" id="doctorSignatureInput" placeholder="Enter Doctor Signature (e.g. Dr. A. Sharma)" style="flex: 1; padding: 5px; border: 0.5px solid #e5e7eb; border-radius: 4px; font-size: 10.5px; outline: none; background: #fff;">
+                                                <button id="clinicalSignoffBtn" style="padding: 5px 12px; font-size: 10.5px; font-weight: 600; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Sign-off Case</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Chat inputs box -->
+                                        <form id="telehealthChatForm" style="display: flex; border-top: 0.5px solid #e5e7eb; padding: 6px; background: #fff;">
+                                            <input type="text" id="telehealthChatInput" placeholder="Type a message to the consulting physician..." style="flex: 1; border: none; padding: 8px; font-size: 12px; outline: none; background: transparent;">
+                                            <button type="submit" class="btn-primary" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; border: none; flex-shrink: 0;"><i class="ti ti-send" style="font-size: 14px;"></i></button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

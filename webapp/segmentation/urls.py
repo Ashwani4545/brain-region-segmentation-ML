@@ -18,4 +18,8 @@ urlpatterns = [
     path('api/chat/<int:scan_id>/', views.chat_api, name='chat_api'),
     path('api/scan/<int:scan_id>/delete/', views.delete_scan_api, name='delete_scan'),
     path('api/scan/<int:scan_id>/recalculate_risk/', views.recalculate_risk_api, name='recalculate_risk'),
+    path('api/consult/request/<int:scan_id>/', views.request_consult_api, name='request_consult'),
+    path('api/consult/<int:consult_id>/messages/', views.consult_messages_api, name='consult_messages'),
+    path('api/consult/<int:consult_id>/invite/', views.invite_specialist_api, name='invite_specialist'),
+    path('api/consult/<int:consult_id>/signoff/', views.signoff_consult_api, name='signoff_consult'),
 ]
